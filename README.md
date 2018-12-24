@@ -1,6 +1,8 @@
 # pyt semestral project
 
 TODO: translate to english
+
+
 Interní aplikace pro naší firmu určená pro správu firemních bodů. Body
 udělují project manažeři, nebo admin (=> uživatelské role). Za body lze
 koupit několik odměn. Aplikace by byla webová - backend v pythonu a
