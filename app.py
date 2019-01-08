@@ -1,5 +1,7 @@
 import os
-from flask import Flask, render_template
+
+from flask import Flask, render_template, request
+
 from DatabaseManager import DatabaseManager
 
 app = Flask(__name__)
@@ -14,12 +16,19 @@ def hello():
     return "Hello World!"
 
 
-@app.route('/users')
+@app.route('/users', methods=['GET', 'POST'])
 def users():
-    # return "Hello {}!".format("bla")
-    print(database_manager.get_all_users())
-    return render_template('users.html', my_string="Wheeeee!", my_list=list(database_manager.get_all_users()))
-    # return "Hello {}!".format(list(database_manager.get_all_users()))
+    if request.method == 'POST':
+        if request.form['submit_button'] == 'add_user':
+            print(request.form['email'])
+            user = {
+                'email': request.form['email'],
+                'points': request.form['points']
+            }
+            database_manager.store_user(user)
+
+    # elif request.method == 'GET':
+    return render_template('users.html', my_string="Hello", my_list=list(database_manager.get_all_users()))
 
 
 if __name__ == '__main__':
