@@ -5,8 +5,8 @@ from pymongo import MongoClient
 class DatabaseManager:
     DATABASE_NAME = "SynePointsDb"
 
-    def __init__(self, database_uri, database_port, use_test_data=False):
-        self.client = MongoClient(host=database_uri, port=database_port)
+    def __init__(self, database_uri, use_test_data=False):
+        self.client = MongoClient(host=database_uri)
         self.db = self.client[self.DATABASE_NAME]
         if use_test_data:
             self._fill_db_with_test_data()
@@ -52,5 +52,8 @@ class DatabaseManager:
         self.store_prize({'name': 'Půjčení IPhone X či Android ekvivalent na rok', 'price': '1000'})
 
     def _drop_db(self):
-        self.client.drop_database(self.DATABASE_NAME)
-        self.db = self.client[self.DATABASE_NAME]
+        # self.client.drop_database(self.DATABASE_NAME)
+        # self.db = self.client[self.DATABASE_NAME]
+
+        self.db.users.remove()
+        self.db.prizes.remove()

@@ -8,8 +8,9 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = os.environ['SECRET_KEY']
-    MONGO_DATABASE_PORT = 27017
-    MONGO_DATABASE_URI = 'mongodb://localhost:{}'.format(MONGO_DATABASE_PORT)
+    MONGO_USER = os.environ['MONGO_USER']
+    MONGO_PASSWORD = os.environ['MONGO_PASSWORD']
+    MONGO_DATABASE_URI = "mongodb+srv://{}:{}@synepoints-f8xsm.mongodb.net/test".format(MONGO_USER, MONGO_PASSWORD)
 
 
 class ProductionConfig(Config):

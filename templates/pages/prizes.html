@@ -1,0 +1,17 @@
+{% extends "layouts/main.html" %}
+{% block body %}
+    <table style="width:100%">
+        <tr>
+            <th>Prize</th>
+            <th>Price</th>
+        </tr>
+
+        {% for prize in prizes %}
+        <tr>
+            <td>{{prize['name']}}</td>
+            <td>{{prize['price']}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+{% endblock %}

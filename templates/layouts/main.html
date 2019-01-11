@@ -9,40 +9,32 @@
             max-width: 500px;
             padding-top: 100px;
         }
+
         table {
-          font-family: arial, sans-serif;
-          border-collapse: collapse;
-          width: 100%;
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
         }
 
         td, th {
-          border: 1px solid #dddddd;
-          text-align: left;
-          padding: 8px;
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
         }
 
         tr:nth-child(even) {
-          background-color: #dddddd;
+            background-color: #dddddd;
         }
 
     </style>
 </head>
 <body>
+<a class="btn btn-info btn-lg" href="/logout">
+    <span class="glyphicon glyphicon-log-out"></span> Log out
+</a>
 <div class="container">
-    <table style="width:100%">
-        <tr>
-            <th>Prize</th>
-            <th>Price</th>
-        </tr>
-
-        {% for prize in my_list %}
-        <tr>
-            <td>{{prize['name']}}</td>
-            <td>{{prize['price']}}</td>
-        </tr>
-        {% endfor %}
-    </table>
-    <br>
+    {% block body %}
+    {% endblock %}
 </div>
 <script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
