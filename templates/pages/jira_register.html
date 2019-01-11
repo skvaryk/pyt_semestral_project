@@ -1,0 +1,10 @@
+{% extends "layouts/main.html" %}
+{% block body %}
+
+<form action="/jira/register" method="post">
+    Api key:<br>
+    <input name="api_key" type="text">
+    <br><br>
+    <input class="btn btn-primary" name="submit_button" type="submit" value="Login"/>
+</form>
+{% endblock %}

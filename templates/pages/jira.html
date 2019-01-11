@@ -1,0 +1,17 @@
+{% extends "layouts/main.html" %}
+{% block body %}
+<table style="width:100%">
+    <tr>
+        <th>Email</th>
+        <th>Points</th>
+    </tr>
+
+    {% for user in users %}
+    <tr>
+        <td>{{user['email']}}</td>
+        <td>{{user['points']}}</td>
+    </tr>
+    {% endfor %}
+</table>
+<br>
+{% endblock %}
