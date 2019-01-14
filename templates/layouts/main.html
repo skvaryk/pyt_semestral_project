@@ -1,42 +1,43 @@
-<!DOCTYPE html>
-<html>
+{% extends "bootstrap/base.html" %}
+
 <head>
     <title>SynePointsApp</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" media="screen" rel="stylesheet">
-    <style type="text/css">
-        .container {
-            max-width: 500px;
-            padding-top: 100px;
-        }
 
-        table {
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        td, th {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-
-        tr:nth-child(even) {
-            background-color: #dddddd;
-        }
-
-    </style>
+    {% block styles %}
+    {{super()}}
+    <link href="{{url_for('.static', filename='styles/default_style.css')}}"
+          rel="stylesheet">
+    {% endblock %}
 </head>
 <body>
-<a class="btn btn-info btn-lg" href="/logout">
-    <span class="glyphicon glyphicon-log-out"></span> Log out
-</a>
+
+{% block content %}
 <div class="container">
-    {% block body %}
-    {% endblock %}
+
+    <nav class="navbar navbar-expand navbar-dark" style="background-color: #27ad7a;">
+
+        <div class="box nav-item active">
+            <!-- TODO: redirect do '/' -->
+            <a href="/users" class="btn nav-link mr-auto navbutton">Overview</a>
+        </div>
+
+        <div class="box nav-item active">
+            <a href="/prizes" class="btn nav-item mr-auto navbutton">Prizes</a>
+        </div>
+        <div class="box nav-item active">
+            <a href="/jira" class="btn nav-item mr-auto navbutton">Jira</a>
+        </div>
+        <div class="box nav-item active">
+            <a href="/logout" class="btn nav-item mr-auto navbutton">Logout</a>
+        </div>
+    </nav>
+
+    <br>
+    <div class="row">
+        {% block page_content %}{% endblock %}
+    </div>
 </div>
-<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
-<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+{% endblock %}
 </body>
 </html>

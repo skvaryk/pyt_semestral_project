@@ -1,17 +1,25 @@
 {% extends "layouts/main.html" %}
-{% block body %}
-<table style="width:100%">
-    <tr>
-        <th>Email</th>
-        <th>Points</th>
-    </tr>
+{% block page_content %}
+{{super()}}
 
-    {% for user in users %}
-    <tr>
-        <td>{{user['email']}}</td>
-        <td>{{user['points']}}</td>
-    </tr>
+<div class="col-lg-12 col-centered">
+    {% for task in tasks %}
+    <div class="card w-100">
+        <h5 class="card-header">{{ task.key + ": " + task.fields.summary }}</h5>
+        <div class="card-body">
+            <p class="card-text" style="overflow: hidden;
+                                   text-overflow: ellipsis;
+                                   display: -webkit-box;
+                                   line-height: 16px;     /* fallback */
+                                   max-height: 32px;      /* fallback */
+                                   -webkit-line-clamp: 3; /* number of lines to show */
+                                   -webkit-box-orient: vertical; ">
+                {{ task.fields.description }}</p>
+            <a class="btn btn-primary card-button" href="#">Button</a>
+        </div>
+    </div>
+    <br>
     {% endfor %}
-</table>
-<br>
+</div>
+
 {% endblock %}

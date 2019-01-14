@@ -1,0 +1,47 @@
+.container {
+    max-width: 750px;
+}
+
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
+
+.col-centered {
+    float: none;
+    margin: 0 auto;
+}
+
+div.box {
+    box-sizing: border-box;
+    width: 25%;
+    float: none;
+    text-align: center;
+}
+
+a.navbutton {
+    -webkit-appearance: button;
+    -moz-appearance: button;
+    color: whitesmoke;
+    font-size: 1.1vw;
+    text-decoration: none;
+    width: 100%;
+    height: 100%;
+}
+
+a.card-button {
+    color: whitesmoke;
+    background-color: #27ad7a;
+    border-color: #27ad7a;
+}

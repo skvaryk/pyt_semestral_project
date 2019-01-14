@@ -4,6 +4,8 @@ from functools import wraps
 
 import requests
 from flask import Flask, render_template, request, redirect, url_for, session
+from flask_bootstrap import Bootstrap
+from flask_bootstrap import __version__ as FLASK_BOOTSTRAP_VERSION
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import make_google_blueprint, google
 from jira import JIRA
@@ -12,8 +14,10 @@ from DatabaseManager import DatabaseManager
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
+Bootstrap(app)
 
-database_manager = DatabaseManager(app.config['MONGO_DATABASE_URI'], app.config['SECRET_KEY'], use_test_data=True)
+database_manager = DatabaseManager(app.config['MONGO_DATABASE_URI'], app.config['SECRET_KEY'],
+                                   use_test_data=False)
 
 # don't require https - only for local testing
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
@@ -27,7 +31,8 @@ with open('client_id.json') as file:
         client_secret=web['client_secret'],
         scope=["https://www.googleapis.com/auth/plus.me",
                "https://www.googleapis.com/auth/userinfo.email", ],
-        hosted_domain="synetech.cz"
+        hosted_domain="synetech.cz",
+        offline=True,
     )
 
     app.register_blueprint(google_bp, url_prefix="/login")
@@ -53,16 +58,19 @@ def logged_in(blueprint, token):
         )
         session.clear()
         redirect('/')
+    else:
+        session['email'] = resp_json['email']
 
 
 @app.route("/")
 @login_required
 def index():
-    resp_json = google.get("/oauth2/v2/userinfo").json()
-    if not resp_json['email']:
-        redirect('/logout')
-    session['email'] = resp_json['email']
-    return "You are {email} on Google".format(email=resp_json['email'])
+    if not session['email']:
+        return redirect('/logout')
+    # resp_json = google.get("/oauth2/v2/userinfo").json()
+    # if not resp_json['email']:
+    #     redirect('/logout')
+    return "You are {email} on Google".format(email=session['email'])
 
 
 @app.route('/users', methods=['GET', 'POST'])
@@ -137,10 +145,9 @@ def jira():
             # Retrieve issues until there are no more to come
             break
         block_num += 1
-        for issue in issues:
-            tasks.append(issue.key)
+        tasks.extend(issues)
 
-    return str(tasks)
+    return render_template('pages/jira.html', tasks=tasks)
 
 
 @app.route('/jira/register', methods=['GET', 'POST'])

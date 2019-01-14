@@ -1,27 +1,32 @@
 {% extends "layouts/main.html" %}
-{% block body %}
-<table style="width:100%">
-    <tr>
-        <th>Email</th>
-        <th>Points</th>
-    </tr>
+{% block page_content %}
 
-    {% for user in users %}
-    <tr>
-        <td>{{user['email']}}</td>
-        <td>{{user['points']}}</td>
-    </tr>
-    {% endfor %}
-</table>
-<br>
+<div class="col-lg-12 col-centered">
 
-<form action="/users" method="post">
-    Email:<br>
-    <input name="email" type="text">
+    <table style="width:100%">
+        <tr>
+            <th>Email</th>
+            <th>Points</th>
+        </tr>
+
+        {% for user in users %}
+        <tr>
+            <td>{{user['email']}}</td>
+            <td>{{user['points']}}</td>
+        </tr>
+        {% endfor %}
+    </table>
     <br>
-    Points:<br>
-    <input name="points" type="number">
-    <br><br>
-    <input class="btn btn-primary" name="submit_button" type="submit" value="add_user"/>
-</form>
+
+    <form action="/users" method="post">
+        Email:<br>
+        <input name="email" type="text">
+        <br>
+        Points:<br>
+        <input name="points" type="number">
+        <br><br>
+        <input class="btn btn-primary" name="submit_button" type="submit" value="add_user"/>
+    </form>
+
+</div>
 {% endblock %}
