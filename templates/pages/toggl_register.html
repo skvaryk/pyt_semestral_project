@@ -1,0 +1,14 @@
+{% extends "layouts/main.html" %}
+{% block page_content %}
+
+<div class="col-lg-12 col-centered">
+
+    <form action="/toggl/register" method="post">
+        Api key:<br>
+        <input name="api_key" type="text">
+        <br><br>
+        <input class="btn btn-primary" name="submit_button" type="submit" value="Login"/>
+    </form>
+
+</div>
+{% endblock %}

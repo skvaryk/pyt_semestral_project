@@ -40,10 +40,23 @@ class DatabaseManager:
 
     def get_jira_api_key(self, email):
         user = self.get_user(email)
-        print(user)
         if user:
             if 'jira_api_key' in user:
                 encrypted_key = user['jira_api_key']
+                return self.fernet.decrypt(encrypted_key)
+            else:
+                return None
+        raise RuntimeError("User with email {} not found".format(email))
+
+    def store_toggl_api_key(self, email, api_key):
+        encrypted_key = self.fernet.encrypt(api_key.encode('UTF-8'))
+        return self.db.users.update({'email': email}, {'$set': {'toggl_api_key': encrypted_key}})
+
+    def get_toggl_api_key(self, email):
+        user = self.get_user(email)
+        if user:
+            if 'toggl_api_key' in user:
+                encrypted_key = user['toggl_api_key']
                 return self.fernet.decrypt(encrypted_key)
             else:
                 return None

@@ -5,12 +5,12 @@ from functools import wraps
 import requests
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_bootstrap import Bootstrap
-from flask_bootstrap import __version__ as FLASK_BOOTSTRAP_VERSION
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import make_google_blueprint, google
 from jira import JIRA
 
 from DatabaseManager import DatabaseManager
+from TogglWrapper import TogglWrapper
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -98,6 +98,7 @@ def prizes():
 
 @app.route('/logout')
 def logout():
+    # TODO: delete api tokens?
     token = google_bp.token["access_token"]
     google.post(
         "https://accounts.google.com/o/oauth2/revoke",
@@ -160,6 +161,28 @@ def jira_register():
             database_manager.store_jira_api_key(email, jira_api_key)
             return redirect("/jira")
     return render_template('pages/jira_register.html')
+
+
+@app.route('/toggl/register', methods=['GET', 'POST'])
+@login_required
+def toggl_register():
+    if request.method == 'POST':
+        if request.form['submit_button'] == 'Login':
+            email = session['email']
+            jira_api_key = request.form['api_key']
+            database_manager.store_toggl_api_key(email, jira_api_key)
+            return redirect("/jira")
+    return render_template('pages/toggl_register.html')
+
+
+@app.route('/toggl', methods=['GET', 'POST'])
+@login_required
+def toggl():
+    email = session['email']
+    api_key = database_manager.get_toggl_api_key(email)
+    toggl_wrapper = TogglWrapper(api_key, "SynePoints", 689492)
+    workspaces = toggl_wrapper.stop_time_entry('OB-1475')
+    return str(workspaces)
 
 
 if __name__ == '__main__':
