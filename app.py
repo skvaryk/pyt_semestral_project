@@ -38,6 +38,15 @@ with open('client_id.json') as file:
     app.register_blueprint(google_bp, url_prefix="/login")
 
 
+@app.errorhandler(ValueError)
+def handle_bad_request(e):
+    return 'bad request! {}'.format(str(e)), 400
+
+
+# or, without the decorator
+app.register_error_handler(400, handle_bad_request)
+
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -109,7 +118,7 @@ def logout():
     return "Logged out"
 
 
-@app.route('/jira', methods=['GET', 'POST'])
+@app.route('/tasks', methods=['GET'])
 @login_required
 def jira():
     email = session['email']
@@ -117,13 +126,7 @@ def jira():
     if not jira_api_key:
         return redirect('/jira/register')
 
-    # By default, the client will connect to a JIRA instance started from the Atlassian Plugin SDK
-    # (see https://developer.atlassian.com/display/DOCS/Installing+the+Atlassian+Plugin+SDK for details).
-    # Override this with the options parameter.
-    options = {
-        'server': 'https://synetech.atlassian.net'
-    }
-
+    options = {'server': 'https://synetech.atlassian.net'}
     jira_client = JIRA(options, basic_auth=(email, jira_api_key))
 
     # Get all projects viewable by anonymous users.
@@ -132,6 +135,15 @@ def jira():
     # Sort available project keys, then return the second, third, and fourth keys.
     keys = sorted([project.key for project in projects])
     print(keys)
+
+    email = session['email']
+    api_key = database_manager.get_toggl_api_key(email)
+    toggl_wrapper = TogglWrapper(api_key, "SynePoints", 689492)
+    current_task_key = ""
+    current_time_entry = toggl_wrapper.get_current_time_entry()
+    if current_time_entry and current_time_entry['tid']:
+        current_task = toggl_wrapper.get_task(current_time_entry['tid'], current_time_entry['pid'])
+        current_task_key = current_task['name'].split(' ')[0]
 
     # TODO: replace currentuser()
     jql = 'assignee=currentuser() AND status not in (resolved, closed) AND createdDate >= -365d'
@@ -148,10 +160,10 @@ def jira():
         block_num += 1
         tasks.extend(issues)
 
-    return render_template('pages/jira.html', tasks=tasks)
+    return render_template('pages/tasks.html', tasks=tasks, current_task_key=current_task_key)
 
 
-@app.route('/jira/register', methods=['GET', 'POST'])
+@app.route('/tasks/register', methods=['GET', 'POST'])
 @login_required
 def jira_register():
     if request.method == 'POST':
@@ -159,7 +171,7 @@ def jira_register():
             email = session['email']
             jira_api_key = request.form['api_key']
             database_manager.store_jira_api_key(email, jira_api_key)
-            return redirect("/jira")
+            return redirect("/tasks")
     return render_template('pages/jira_register.html')
 
 
@@ -171,18 +183,44 @@ def toggl_register():
             email = session['email']
             jira_api_key = request.form['api_key']
             database_manager.store_toggl_api_key(email, jira_api_key)
-            return redirect("/jira")
+            return redirect("/tasks")
     return render_template('pages/toggl_register.html')
 
 
-@app.route('/toggl', methods=['GET', 'POST'])
+@app.route('/tasks/<task_key>/stop', methods=['POST'])
 @login_required
-def toggl():
+def tasks_stop_timer(task_key):
     email = session['email']
     api_key = database_manager.get_toggl_api_key(email)
     toggl_wrapper = TogglWrapper(api_key, "SynePoints", 689492)
-    workspaces = toggl_wrapper.stop_time_entry('OB-1475')
-    return str(workspaces)
+
+    toggl_wrapper.stop_time_entry(task_key)
+    return redirect("/tasks")
+
+
+@app.route('/tasks/<task_key>/start', methods=['POST'])
+@login_required
+def tasks_start_timer(task_key):
+    email = session['email']
+    api_key = database_manager.get_toggl_api_key(email)
+    toggl_wrapper = TogglWrapper(api_key, "SynePoints", 689492)
+
+    toggl_wrapper.start_time_entry(task_key)
+    return redirect("/tasks")
+
+
+@app.route('/tasks/<task_key>/comment', methods=['POST'])
+@login_required
+def tasks_comment(task_key):
+    text = request.form['text']
+    email = session['email']
+    jira_api_key = database_manager.get_jira_api_key(email)
+    if not jira_api_key:
+        return redirect('/jira/register')
+    options = {'server': 'https://synetech.atlassian.net'}
+    jira_client = JIRA(options, basic_auth=(email, jira_api_key))
+    jira_client.add_comment(task_key, text)
+    return redirect("/tasks")
 
 
 if __name__ == '__main__':

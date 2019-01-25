@@ -31,7 +31,7 @@ class TogglWrapper(TogglClientApi):
 
     def stop_time_entry(self, task_name):
         task = self.get_task_by_name(task_name)
-        current_entry = self.get_current_time_entry()['data']
+        current_entry = self.get_current_time_entry()
         if current_entry and task['id'] == current_entry['tid']:
             path = '/time_entries/{}/stop'.format(current_entry['id'])
             response = self._put_query(path, dict_data=None)
@@ -52,6 +52,8 @@ class TogglWrapper(TogglClientApi):
             '/me', params={'with_related_data': with_related_data})
 
     def get_project_tasks(self, project_id):
+        if not project_id:
+            raise ValueError('Project_id cannot be None or empty. Is the project named correctly?')
         path = '/projects/{}/tasks'.format(project_id)
         return self._get_query(path)
 
@@ -67,7 +69,20 @@ class TogglWrapper(TogglClientApi):
     def get_current_time_entry(self):
         path = '/time_entries/current'
         response = self._get_query(path)
-        return response
+        return response['data']
+
+    def get_task(self, task_id, project_id):
+        tasks = self.get_project_tasks(project_id)
+        for task in tasks:
+            if task['id'] == task_id:
+                return task
+        return None
+
+    def get_task_by_id(self, task_id):
+        # this call often returns empty data - problem on toggl's side
+        path = "/tasks/{}".format(task_id)
+        response = self._get_query(path)
+        return response['data']
 
     def _post_query(self, path, dict_data):
         data = json.dumps(dict_data)
