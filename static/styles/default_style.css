@@ -55,3 +55,13 @@ button.btn-primary {
     background-color: #27ad7a;
     border-color: #27ad7a;
 }
+
+input.btn-primary:hover {
+    background-color: #5dc19b;
+    border-color: #27ad7a;
+}
+
+button.btn-primary:hover {
+    background-color: #5dc19b;
+    border-color: #27ad7a;
+}
