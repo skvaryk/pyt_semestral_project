@@ -120,7 +120,7 @@ def logout():
 
 @app.route('/tasks', methods=['GET'])
 @login_required
-def jira():
+def tasks():
     email = session['email']
     jira_api_key = database_manager.get_jira_api_key(email)
     if not jira_api_key:
@@ -134,7 +134,6 @@ def jira():
 
     # Sort available project keys, then return the second, third, and fourth keys.
     keys = sorted([project.key for project in projects])
-    print(keys)
 
     email = session['email']
     api_key = database_manager.get_toggl_api_key(email)
@@ -150,7 +149,7 @@ def jira():
 
     block_size = 100
     block_num = 0
-    tasks = []
+    jira_tasks = []
     while True:
         start_idx = block_num * block_size
         issues = jira_client.search_issues(jql, start_idx, block_size)
@@ -158,9 +157,15 @@ def jira():
             # Retrieve issues until there are no more to come
             break
         block_num += 1
-        tasks.extend(issues)
+        jira_tasks.extend(issues)
 
-    return render_template('pages/tasks.html', tasks=tasks, current_task_key=current_task_key)
+    for jira_task in jira_tasks:
+        transitions = jira_client.transitions(jira_task.key)
+        jira_task.transitions = transitions
+
+    # transitions = jira_client.transitions('OB-1371')
+
+    return render_template('pages/tasks.html', tasks=jira_tasks, current_task_key=current_task_key)
 
 
 @app.route('/tasks/register', methods=['GET', 'POST'])
@@ -220,6 +225,19 @@ def tasks_comment(task_key):
     options = {'server': 'https://synetech.atlassian.net'}
     jira_client = JIRA(options, basic_auth=(email, jira_api_key))
     jira_client.add_comment(task_key, text)
+    return redirect("/tasks")
+
+
+@app.route('/tasks/<task_key>/transition/<transition_id>', methods=['POST'])
+@login_required
+def tasks_transition(task_key, transition_id):
+    email = session['email']
+    jira_api_key = database_manager.get_jira_api_key(email)
+    if not jira_api_key:
+        return redirect('/jira/register')
+    options = {'server': 'https://synetech.atlassian.net'}
+    jira_client = JIRA(options, basic_auth=(email, jira_api_key))
+    jira_client.transition_issue(task_key, transition_id)
     return redirect("/tasks")
 
 
