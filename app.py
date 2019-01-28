@@ -8,6 +8,7 @@ from flask_bootstrap import Bootstrap
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import make_google_blueprint, google
 from jira import JIRA
+from oauthlib.oauth2 import InvalidClientIdError
 
 from DatabaseManager import DatabaseManager
 from TogglWrapper import TogglWrapper
@@ -74,11 +75,11 @@ def logged_in(blueprint, token):
 @app.route("/")
 @login_required
 def index():
-    if not session['email']:
-        return redirect('/logout')
-    # resp_json = google.get("/oauth2/v2/userinfo").json()
-    # if not resp_json['email']:
-    #     redirect('/logout')
+    # if not session['email']:
+    #     return redirect('/logout')
+    resp_json = google.get("/oauth2/v2/userinfo").json()
+    if not resp_json['email']:
+        redirect('/logout')
     return "You are {email} on Google".format(email=session['email'])
 
 
@@ -239,6 +240,31 @@ def tasks_transition(task_key, transition_id):
     jira_client = JIRA(options, basic_auth=(email, jira_api_key))
     jira_client.transition_issue(task_key, transition_id)
     return redirect("/tasks")
+
+
+@app.route('/users/<assignee_email>/points', methods=['POST'])
+@login_required
+def users_assign_points(assignee_email):
+    points = int(request.form['points'])
+    reason = request.form['reason']
+
+    # resp_json = google_bp.session.get("/oauth2/v2/userinfo").json()
+    resp_json = google.get('/oauth2/v2/userinfo').json()
+    if not resp_json['email']:
+        redirect('/logout')
+    current_user_email = resp_json['email']
+    user = database_manager.get_user(current_user_email)
+    if 'role' in user and (user['role'] == 'admin' or user['role'] == 'pm'):
+        database_manager.assign_points(assignee_email, points, reason, current_user_email)
+    else:
+        return 'Not authorized'
+    return redirect("/users")
+
+
+@app.errorhandler(InvalidClientIdError)
+def handle_error(e):
+    session.clear()
+    return redirect('/')
 
 
 if __name__ == '__main__':

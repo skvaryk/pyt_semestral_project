@@ -85,3 +85,10 @@ class DatabaseManager:
     def _drop_db(self):
         self.db.users.remove()
         self.db.prizes.remove()
+
+    def assign_points(self, assignee_email, points, reason, assigner_email):
+        self._store_record({'change_by': assigner_email, 'user': assignee_email, 'reason': reason, 'points': points})
+        self.db.users.update({'email': assignee_email}, {'$inc': {'points': points}})
+
+    def _store_record(self, record):
+        return self.db.records.insert_one(record)
