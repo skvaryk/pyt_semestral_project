@@ -4,6 +4,11 @@ import requests
 from toggl.api_client import TogglClientApi
 
 
+class ProjectNotFoundException(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
 class TogglWrapper(TogglClientApi):
 
     def __init__(self, api_key, user_agent, workspace_id=1):
@@ -13,7 +18,6 @@ class TogglWrapper(TogglClientApi):
             'workspace_id': workspace_id
         }
         super().__init__(settings)
-        # self.toggle_client = TogglClientApi(settings)
         self.toggl_auth = (api_key, 'api_token')
         self.toggl_headers = {'Content-Type': 'application/json'}
 
@@ -60,6 +64,10 @@ class TogglWrapper(TogglClientApi):
     def get_task_by_name(self, task_name):
         task_keyword = task_name.split('-')[0] + ' '
         project_id = self.get_project_id_by_keyword(task_keyword)
+        if not project_id:
+            raise ProjectNotFoundException(
+                'Project not found. Do you have the permission to view this toggl project?')
+
         tasks = self.get_project_tasks(project_id)
         for task in tasks:
             if task_name in task['name']:

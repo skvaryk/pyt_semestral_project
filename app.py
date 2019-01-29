@@ -3,7 +3,7 @@ import os
 from functools import wraps
 
 import requests
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_bootstrap import Bootstrap
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import make_google_blueprint, google
@@ -11,7 +11,7 @@ from jira import JIRA
 from oauthlib.oauth2 import InvalidClientIdError
 
 from DatabaseManager import DatabaseManager
-from TogglWrapper import TogglWrapper
+from TogglWrapper import TogglWrapper, ProjectNotFoundException
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
@@ -19,9 +19,6 @@ Bootstrap(app)
 
 database_manager = DatabaseManager(app.config['MONGO_DATABASE_URI'], app.config['SECRET_KEY'],
                                    use_test_data=False)
-
-# don't require https - only for local testing
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 with open('client_id.json') as file:
     client_id = json.load(file)
@@ -44,7 +41,6 @@ def handle_bad_request(e):
     return 'bad request! {}'.format(str(e)), 400
 
 
-# or, without the decorator
 app.register_error_handler(400, handle_bad_request)
 
 
@@ -99,11 +95,29 @@ def users():
                            users=list(database_manager.get_all_users()))
 
 
-@app.route('/prizes')
+@app.route('/prizes', methods=['GET'])
 @login_required
 def prizes():
-    return render_template('pages/prizes.html',
-                           prizes=list(database_manager.get_all_prizes()))
+    email = session['email']
+    user_points = database_manager.get_user(email)['points']
+    prizes_list = list(database_manager.get_all_prizes())
+    for prize in prizes_list:
+        if str.isdigit(prize['price']) and int(prize['price']) > user_points:
+            prize['requestable'] = False
+    return render_template('pages/prizes.html', prizes=prizes_list, user_points=user_points)
+
+
+@app.route('/prizes/<prize_id>/request', methods=['POST'])
+@login_required
+def prizes_request(prize_id):
+    email = session['email']
+    user_points = database_manager.get_user(email)['points']
+    prize = database_manager.get_prize(int(prize_id))
+    if int(prize['price']) > user_points:
+        return 'Sorry, it appears you do not have enough points for this prize.'
+    database_manager.store_request(email, prize_id)
+    flash('Prize requested.')
+    return redirect(url_for('prizes'))
 
 
 @app.route('/logout')
@@ -129,22 +143,6 @@ def tasks():
 
     options = {'server': 'https://synetech.atlassian.net'}
     jira_client = JIRA(options, basic_auth=(email, jira_api_key))
-
-    # Get all projects viewable by anonymous users.
-    projects = jira_client.projects()
-
-    # Sort available project keys, then return the second, third, and fourth keys.
-    keys = sorted([project.key for project in projects])
-
-    email = session['email']
-    api_key = database_manager.get_toggl_api_key(email)
-    toggl_wrapper = TogglWrapper(api_key, "SynePoints", 689492)
-    current_task_key = ""
-    current_time_entry = toggl_wrapper.get_current_time_entry()
-    if current_time_entry and current_time_entry['tid']:
-        current_task = toggl_wrapper.get_task(current_time_entry['tid'], current_time_entry['pid'])
-        current_task_key = current_task['name'].split(' ')[0]
-
     # TODO: replace currentuser()
     jql = 'assignee=currentuser() AND status not in (resolved, closed) AND createdDate >= -365d'
 
@@ -164,12 +162,20 @@ def tasks():
         transitions = jira_client.transitions(jira_task.key)
         jira_task.transitions = transitions
 
-    # transitions = jira_client.transitions('OB-1371')
+    email = session['email']
+    toggl_api_key = database_manager.get_toggl_api_key(email)
+    current_task_key = ""
+    if toggl_api_key:
+        toggl_wrapper = TogglWrapper(toggl_api_key, "SynePoints", 689492)
+        current_time_entry = toggl_wrapper.get_current_time_entry()
+        if current_time_entry and current_time_entry['tid']:
+            current_task = toggl_wrapper.get_task(current_time_entry['tid'], current_time_entry['pid'])
+            current_task_key = current_task['name'].split(' ')[0]
 
     return render_template('pages/tasks.html', tasks=jira_tasks, current_task_key=current_task_key)
 
 
-@app.route('/tasks/register', methods=['GET', 'POST'])
+@app.route('/jira/register', methods=['GET', 'POST'])
 @login_required
 def jira_register():
     if request.method == 'POST':
@@ -198,8 +204,9 @@ def toggl_register():
 def tasks_stop_timer(task_key):
     email = session['email']
     api_key = database_manager.get_toggl_api_key(email)
+    if not api_key:
+        return redirect('/toggl/register')
     toggl_wrapper = TogglWrapper(api_key, "SynePoints", 689492)
-
     toggl_wrapper.stop_time_entry(task_key)
     return redirect("/tasks")
 
@@ -209,9 +216,13 @@ def tasks_stop_timer(task_key):
 def tasks_start_timer(task_key):
     email = session['email']
     api_key = database_manager.get_toggl_api_key(email)
+    if not api_key:
+        return redirect('/toggl/register')
     toggl_wrapper = TogglWrapper(api_key, "SynePoints", 689492)
-
-    toggl_wrapper.start_time_entry(task_key)
+    try:
+        toggl_wrapper.start_time_entry(task_key)
+    except ProjectNotFoundException as e:
+        return e.message
     return redirect("/tasks")
 
 

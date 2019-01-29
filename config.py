@@ -23,6 +23,8 @@ class StagingConfig(Config):
 
 
 class DevelopmentConfig(Config):
+    # don't require https - only for local testing
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
     DEVELOPMENT = True
     DEBUG = True
 

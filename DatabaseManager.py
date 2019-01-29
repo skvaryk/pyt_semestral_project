@@ -68,19 +68,29 @@ class DatabaseManager:
         self.store_user({'email': 'franta.pepa1@synetech.cz', 'points': 3})
         self.store_user({'email': 'franta.pepa3@synetech.cz', 'points': 5})
         self.store_user({'email': 'franta.pepa2@synetech.cz', 'points': 1})
-        self.store_user({'email': 'marek.alexa@synetech.cz', 'points': 9999})
+        self.store_user({'email': 'marek.alexa@synetech.cz', 'points': 100})
 
-        self.store_prize({'name': 'Školení', 'price': 'dle domluvy'})
-        self.store_prize({'name': 'Půjčení firemního drona na 3 dny', 'price': '50'})
-        self.store_prize({'name': 'Půjčení firemního auta na 3 dny', 'price': '65'})
-        self.store_prize({'name': 'Alza poukaz - 1000 Kč', 'price': '80'})
-        self.store_prize({'name': 'Předplatné Spotify Premium na půl roku', 'price': '120'})
-        self.store_prize({'name': 'Poukaz na gastronomický zážitek pro dva', 'price': '150'})
-        self.store_prize({'name': 'Předplatné Netflix Standard na půl roku', 'price': '150'})
-        self.store_prize({'name': 'Proplacení jízd Uberem do limitu 2000 Kč', 'price': '200'})
-        self.store_prize({'name': 'Offroadový zážitek s Vráťou a jeho princeznou Ladou', 'price': '300'})
-        self.store_prize({'name': 'Alza poukaz - 5000 Kč', 'price': '400'})
-        self.store_prize({'name': 'Půjčení IPhone X či Android ekvivalent na rok', 'price': '1000'})
+        self.store_prize({'id': 0, 'requestable': False, 'description': 'Školení', 'price': 'dle domluvy'})
+        self.store_prize(
+            {'id': 1, 'requestable': True, 'description': 'Půjčení firemního drona na 3 dny', 'price': '50'})
+        self.store_prize(
+            {'id': 2, 'requestable': True, 'description': 'Půjčení firemního auta na 3 dny', 'price': '65'})
+        self.store_prize({'id': 3, 'requestable': True, 'description': 'Alza poukaz - 1000 Kč', 'price': '80'})
+        self.store_prize(
+            {'id': 4, 'requestable': True, 'description': 'Předplatné Spotify Premium na půl roku', 'price': '120'})
+        self.store_prize(
+            {'id': 5, 'requestable': True, 'description': 'Poukaz na gastronomický zážitek pro dva', 'price': '150'})
+        self.store_prize(
+            {'id': 6, 'requestable': True, 'description': 'Předplatné Netflix Standard na půl roku', 'price': '150'})
+        self.store_prize(
+            {'id': 7, 'requestable': True, 'description': 'Proplacení jízd Uberem do limitu 2000 Kč', 'price': '200'})
+        self.store_prize(
+            {'id': 8, 'requestable': True, 'description': 'Offroadový zážitek s Vráťou a jeho princeznou Ladou',
+             'price': '300'})
+        self.store_prize({'id': 9, 'requestable': True, 'description': 'Alza poukaz - 5000 Kč', 'price': '400'})
+        self.store_prize(
+            {'id': 10, 'requestable': True, 'description': 'Půjčení IPhone X či Android ekvivalent na rok',
+             'price': '1000'})
 
     def _drop_db(self):
         self.db.users.remove()
@@ -92,3 +102,16 @@ class DatabaseManager:
 
     def _store_record(self, record):
         return self.db.records.insert_one(record)
+
+    def get_prize(self, prize_id):
+        query = {'id': prize_id}
+        result = self.db.prizes.find_one(query)
+        return result
+
+    def store_request(self, email, prize_id):
+        request = {'email': email, 'prize_id': prize_id, 'fulfilled': False}
+        return self.db.requests.insert_one(request)
+
+    def get_unfulfilled_requests(self):
+        query = {'fulfilled': False}
+        return self.db.requests.find(query)
