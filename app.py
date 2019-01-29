@@ -79,7 +79,7 @@ def index():
     return "You are {email} on Google".format(email=session['email'])
 
 
-@app.route('/users', methods=['GET', 'POST'])
+@app.route('/users/', methods=['GET', 'POST'])
 @login_required
 def users():
     if request.method == 'POST':
@@ -95,7 +95,7 @@ def users():
                            users=list(database_manager.get_all_users()))
 
 
-@app.route('/prizes', methods=['GET'])
+@app.route('/prizes/', methods=['GET'])
 @login_required
 def prizes():
     email = session['email']
@@ -107,7 +107,7 @@ def prizes():
     return render_template('pages/prizes.html', prizes=prizes_list, user_points=user_points)
 
 
-@app.route('/prizes/<prize_id>/request', methods=['POST'])
+@app.route('/prizes/<prize_id>/request/', methods=['POST'])
 @login_required
 def prizes_request(prize_id):
     email = session['email']
@@ -120,7 +120,7 @@ def prizes_request(prize_id):
     return redirect(url_for('prizes'))
 
 
-@app.route('/logout')
+@app.route('/logout/')
 def logout():
     # TODO: delete api tokens?
     token = google_bp.token["access_token"]
@@ -133,7 +133,7 @@ def logout():
     return "Logged out"
 
 
-@app.route('/tasks', methods=['GET'])
+@app.route('/tasks/', methods=['GET'])
 @login_required
 def tasks():
     email = session['email']
@@ -175,7 +175,7 @@ def tasks():
     return render_template('pages/tasks.html', tasks=jira_tasks, current_task_key=current_task_key)
 
 
-@app.route('/jira/register', methods=['GET', 'POST'])
+@app.route('/jira/register/', methods=['GET', 'POST'])
 @login_required
 def jira_register():
     if request.method == 'POST':
@@ -187,7 +187,7 @@ def jira_register():
     return render_template('pages/jira_register.html')
 
 
-@app.route('/toggl/register', methods=['GET', 'POST'])
+@app.route('/toggl/register/', methods=['GET', 'POST'])
 @login_required
 def toggl_register():
     if request.method == 'POST':
@@ -199,7 +199,7 @@ def toggl_register():
     return render_template('pages/toggl_register.html')
 
 
-@app.route('/tasks/<task_key>/stop', methods=['POST'])
+@app.route('/tasks/<task_key>/stop/', methods=['POST'])
 @login_required
 def tasks_stop_timer(task_key):
     email = session['email']
@@ -211,7 +211,7 @@ def tasks_stop_timer(task_key):
     return redirect("/tasks")
 
 
-@app.route('/tasks/<task_key>/start', methods=['POST'])
+@app.route('/tasks/<task_key>/start/', methods=['POST'])
 @login_required
 def tasks_start_timer(task_key):
     email = session['email']
@@ -226,7 +226,7 @@ def tasks_start_timer(task_key):
     return redirect("/tasks")
 
 
-@app.route('/tasks/<task_key>/comment', methods=['POST'])
+@app.route('/tasks/<task_key>/comment/', methods=['POST'])
 @login_required
 def tasks_comment(task_key):
     text = request.form['text']
@@ -240,7 +240,7 @@ def tasks_comment(task_key):
     return redirect("/tasks")
 
 
-@app.route('/tasks/<task_key>/transition/<transition_id>', methods=['POST'])
+@app.route('/tasks/<task_key>/transition/<transition_id>/', methods=['POST'])
 @login_required
 def tasks_transition(task_key, transition_id):
     email = session['email']
@@ -253,7 +253,7 @@ def tasks_transition(task_key, transition_id):
     return redirect("/tasks")
 
 
-@app.route('/users/<assignee_email>/points', methods=['POST'])
+@app.route('/users/<assignee_email>/points/', methods=['POST'])
 @login_required
 def users_assign_points(assignee_email):
     points = int(request.form['points'])
@@ -274,6 +274,7 @@ def users_assign_points(assignee_email):
 
 @app.errorhandler(InvalidClientIdError)
 def handle_error(e):
+    print(e.message)
     session.clear()
     return redirect('/')
 
