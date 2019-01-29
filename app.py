@@ -259,7 +259,6 @@ def users_assign_points(assignee_email):
     points = int(request.form['points'])
     reason = request.form['reason']
 
-    # resp_json = google_bp.session.get("/oauth2/v2/userinfo").json()
     resp_json = google.get('/oauth2/v2/userinfo').json()
     if not resp_json['email']:
         redirect('/logout')
@@ -270,6 +269,20 @@ def users_assign_points(assignee_email):
     else:
         return 'Not authorized'
     return redirect("/users")
+
+
+@app.route('/requests/', methods=['GET'])
+@login_required
+def requests():
+    email = session['email']
+    user_requests = list(database_manager.get_requests(email))
+    for user_request in user_requests:
+        prize = database_manager.get_prize(user_request['prize_id'])
+        user_request['description'] = prize['description']
+        user_request['price'] = prize['price']
+        user_request['date'] = user_request['_id'].generation_time
+
+    return render_template('pages/requests.html', requests=user_requests)
 
 
 @app.errorhandler(InvalidClientIdError)

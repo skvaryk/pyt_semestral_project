@@ -104,14 +104,18 @@ class DatabaseManager:
         return self.db.records.insert_one(record)
 
     def get_prize(self, prize_id):
-        query = {'id': prize_id}
+        query = {'id': int(prize_id)}
         result = self.db.prizes.find_one(query)
         return result
 
     def store_request(self, email, prize_id):
-        request = {'email': email, 'prize_id': prize_id, 'fulfilled': False}
+        request = {'email': email, 'prize_id': prize_id, 'granted': False}
         return self.db.requests.insert_one(request)
 
     def get_unfulfilled_requests(self):
         query = {'fulfilled': False}
+        return self.db.requests.find(query)
+
+    def get_requests(self, email):
+        query = {'email': email}
         return self.db.requests.find(query)
