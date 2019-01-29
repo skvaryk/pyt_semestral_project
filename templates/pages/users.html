@@ -7,13 +7,17 @@
         <tr>
             <th>Email</th>
             <th>Points</th>
+            {% if current_user['role'] == 'admin' or current_user['role'] == 'pm' %}
             <th>Action</th>
+            {% endif %}
+
         </tr>
 
         {% for user in users %}
         <tr>
             <td>{{ user['email'] }}</td>
             <td>{{ user['points'] }}</td>
+            {% if current_user['role'] == 'admin' or current_user['role'] == 'pm' %}
             <td>
                 <button class="btn btn-primary card-button" data-target="#assignPoints-{{ user['email'] }}"
                         data-toggle="modal"
@@ -51,6 +55,7 @@
                     </div>
                 </div>
             </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </table>

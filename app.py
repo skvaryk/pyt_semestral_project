@@ -82,17 +82,10 @@ def index():
 @app.route('/users/', methods=['GET', 'POST'])
 @login_required
 def users():
-    if request.method == 'POST':
-        if request.form['submit_button'] == 'add_user':
-            print(request.form['email'])
-            user = {
-                'email': request.form['email'],
-                'points': request.form['points']
-            }
-            database_manager.store_user(user)
-
-    return render_template('pages/users.html',
-                           users=list(database_manager.get_all_users()))
+    email = session['email']
+    current_user = database_manager.get_user(email)
+    all_users = database_manager.get_all_users()
+    return render_template('pages/users.html', users=list(all_users), current_user=current_user)
 
 
 @app.route('/prizes/', methods=['GET'])
