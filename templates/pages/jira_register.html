@@ -4,11 +4,15 @@
 <div class="col-lg-12 col-centered">
 
     <form action="/jira/register/" method="post">
-        Jira api key:<br>
-        <input name="api_key" type="text">
+        Jira api token:<br>
+        <input name="api_token" type="text">
         <br><br>
         <input class="btn btn-primary" name="submit_button" type="submit" value="Login"/>
     </form>
+
+    <br>
+    <p>If you are unsure how to obtain an api token, please refer to the official <a
+            href="https://confluence.atlassian.com/cloud/api-tokens-938839638.html">documentation</a>.</p>
 
 </div>
 {% endblock %}

@@ -75,8 +75,8 @@ def index():
     #     return redirect('/logout')
     resp_json = google.get("/oauth2/v2/userinfo").json()
     if not resp_json['email']:
-        redirect('/logout')
-    return "You are {email} on Google".format(email=session['email'])
+        return redirect('/logout')
+    return redirect('/users')
 
 
 @app.route('/users/', methods=['GET', 'POST'])
@@ -115,7 +115,6 @@ def prizes_request(prize_id):
 
 @app.route('/logout/')
 def logout():
-    # TODO: delete api tokens?
     token = google_bp.token["access_token"]
     google.post(
         "https://accounts.google.com/o/oauth2/revoke",
@@ -130,12 +129,12 @@ def logout():
 @login_required
 def tasks():
     email = session['email']
-    jira_api_key = database_manager.get_jira_api_key(email)
-    if not jira_api_key:
+    jira_api_token = database_manager.get_jira_api_token(email)
+    if not jira_api_token:
         return redirect('/jira/register')
 
     options = {'server': 'https://synetech.atlassian.net'}
-    jira_client = JIRA(options, basic_auth=(email, jira_api_key))
+    jira_client = JIRA(options, basic_auth=(email, jira_api_token))
     # TODO: replace currentuser()
     jql = 'assignee=currentuser() AND status not in (resolved, closed) AND createdDate >= -365d'
 
@@ -156,10 +155,10 @@ def tasks():
         jira_task.transitions = transitions
 
     email = session['email']
-    toggl_api_key = database_manager.get_toggl_api_key(email)
+    toggl_api_token = database_manager.get_toggl_api_token(email)
     current_task_key = ""
-    if toggl_api_key:
-        toggl_wrapper = TogglWrapper(toggl_api_key, "SynePoints", 689492)
+    if toggl_api_token:
+        toggl_wrapper = TogglWrapper(toggl_api_token, "SynePoints", 689492)
         current_time_entry = toggl_wrapper.get_current_time_entry()
         if current_time_entry and current_time_entry['tid']:
             current_task = toggl_wrapper.get_task(current_time_entry['tid'], current_time_entry['pid'])
@@ -174,8 +173,8 @@ def jira_register():
     if request.method == 'POST':
         if request.form['submit_button'] == 'Login':
             email = session['email']
-            jira_api_key = request.form['api_key']
-            database_manager.store_jira_api_key(email, jira_api_key)
+            jira_api_token = request.form['api_token']
+            database_manager.store_jira_api_token(email, jira_api_token)
             return redirect("/tasks")
     return render_template('pages/jira_register.html')
 
@@ -186,8 +185,8 @@ def toggl_register():
     if request.method == 'POST':
         if request.form['submit_button'] == 'Login':
             email = session['email']
-            jira_api_key = request.form['api_key']
-            database_manager.store_toggl_api_key(email, jira_api_key)
+            jira_api_token = request.form['api_token']
+            database_manager.store_toggl_api_token(email, jira_api_token)
             return redirect("/tasks")
     return render_template('pages/toggl_register.html')
 
@@ -196,10 +195,10 @@ def toggl_register():
 @login_required
 def tasks_stop_timer(task_key):
     email = session['email']
-    api_key = database_manager.get_toggl_api_key(email)
-    if not api_key:
+    toggl_api_token = database_manager.get_toggl_api_token(email)
+    if not toggl_api_token:
         return redirect('/toggl/register')
-    toggl_wrapper = TogglWrapper(api_key, "SynePoints", 689492)
+    toggl_wrapper = TogglWrapper(toggl_api_token, "SynePoints", 689492)
     toggl_wrapper.stop_time_entry(task_key)
     return redirect("/tasks")
 
@@ -208,10 +207,10 @@ def tasks_stop_timer(task_key):
 @login_required
 def tasks_start_timer(task_key):
     email = session['email']
-    api_key = database_manager.get_toggl_api_key(email)
-    if not api_key:
+    toggl_api_token = database_manager.get_toggl_api_token(email)
+    if not toggl_api_token:
         return redirect('/toggl/register')
-    toggl_wrapper = TogglWrapper(api_key, "SynePoints", 689492)
+    toggl_wrapper = TogglWrapper(toggl_api_token, "SynePoints", 689492)
     try:
         toggl_wrapper.start_time_entry(task_key)
     except ProjectNotFoundException as e:
@@ -224,11 +223,11 @@ def tasks_start_timer(task_key):
 def tasks_comment(task_key):
     text = request.form['text']
     email = session['email']
-    jira_api_key = database_manager.get_jira_api_key(email)
-    if not jira_api_key:
+    jira_api_token = database_manager.get_jira_api_token(email)
+    if not jira_api_token:
         return redirect('/jira/register')
     options = {'server': 'https://synetech.atlassian.net'}
-    jira_client = JIRA(options, basic_auth=(email, jira_api_key))
+    jira_client = JIRA(options, basic_auth=(email, jira_api_token))
     jira_client.add_comment(task_key, text)
     return redirect("/tasks")
 
@@ -237,11 +236,11 @@ def tasks_comment(task_key):
 @login_required
 def tasks_transition(task_key, transition_id):
     email = session['email']
-    jira_api_key = database_manager.get_jira_api_key(email)
-    if not jira_api_key:
+    jira_api_token = database_manager.get_jira_api_token(email)
+    if not jira_api_token:
         return redirect('/jira/register')
     options = {'server': 'https://synetech.atlassian.net'}
-    jira_client = JIRA(options, basic_auth=(email, jira_api_key))
+    jira_client = JIRA(options, basic_auth=(email, jira_api_token))
     jira_client.transition_issue(task_key, transition_id)
     return redirect("/tasks")
 
@@ -287,7 +286,6 @@ def requests_cancel(request_id):
 
 @app.errorhandler(InvalidClientIdError)
 def handle_error(e):
-    print(e.message)
     session.clear()
     return redirect('/')
 

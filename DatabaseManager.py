@@ -35,30 +35,30 @@ class DatabaseManager:
     def get_all_prizes(self):
         return self.db.prizes.find()
 
-    def store_jira_api_key(self, email, api_key):
-        encrypted_key = self.fernet.encrypt(api_key.encode('UTF-8'))
-        return self.db.users.update({'email': email}, {'$set': {'jira_api_key': encrypted_key}})
+    def store_jira_api_token(self, email, api_token):
+        encrypted_token = self.fernet.encrypt(api_token.encode('UTF-8'))
+        return self.db.users.update({'email': email}, {'$set': {'jira_api_token': encrypted_token}})
 
-    def get_jira_api_key(self, email):
+    def get_jira_api_token(self, email):
         user = self.get_user(email)
         if user:
-            if 'jira_api_key' in user:
-                encrypted_key = user['jira_api_key']
-                return self.fernet.decrypt(encrypted_key)
+            if 'jira_api_token' in user:
+                encrypted_token = user['jira_api_token']
+                return self.fernet.decrypt(encrypted_token)
             else:
                 return None
         raise RuntimeError("User with email {} not found".format(email))
 
-    def store_toggl_api_key(self, email, api_key):
-        encrypted_key = self.fernet.encrypt(api_key.encode('UTF-8'))
-        return self.db.users.update({'email': email}, {'$set': {'toggl_api_key': encrypted_key}})
+    def store_toggl_api_token(self, email, api_token):
+        encrypted_token = self.fernet.encrypt(api_token.encode('UTF-8'))
+        return self.db.users.update({'email': email}, {'$set': {'toggl_api_token': encrypted_token}})
 
-    def get_toggl_api_key(self, email):
+    def get_toggl_api_token(self, email):
         user = self.get_user(email)
         if user:
-            if 'toggl_api_key' in user:
-                encrypted_key = user['toggl_api_key']
-                return self.fernet.decrypt(encrypted_key)
+            if 'toggl_api_token' in user:
+                encrypted_token = user['toggl_api_token']
+                return self.fernet.decrypt(encrypted_token)
             else:
                 return None
         raise RuntimeError("User with email {} not found".format(email))
