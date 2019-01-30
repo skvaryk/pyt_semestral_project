@@ -138,24 +138,28 @@ class DatabaseManager:
         self.db.requests.remove()
         self.db.rewards.remove()
 
-    def assign_points(self, assignee_email, points, reason, assigner_email):
-        self.store_record({'change_by': assigner_email, 'user': assignee_email, 'reason': reason, 'points': points})
-        self.db.users.update({'email': assignee_email}, {'$inc': {'points': points}})
+    def assign_points(self, user_email, points, reason, changed_by):
+        self.store_record({'change_by': changed_by, 'user': user_email, 'reason': reason, 'points': points})
+        self.update_points(user_email, points)
+
+    def update_points(self, user_email, points):
+        self.db.users.update({'email': user_email}, {'$inc': {'points': points}})
 
     def store_record(self, record):
         return self.db.records.insert_one(record)
 
     def get_prize(self, prize_id):
         query = {'id': int(prize_id)}
-        result = self.db.prizes.find_one(query)
-        return result
+        return self.db.prizes.find_one(query)
 
     def store_request(self, email, prize_id):
+        prize = self.get_prize(prize_id)
+        self.update_points(email, -int(prize['price']))
         request = {'email': email, 'prize_id': prize_id, 'granted': False}
         return self.db.requests.insert_one(request)
 
-    def get_unfulfilled_requests(self):
-        query = {'fulfilled': False}
+    def get_ungranted_requests(self):
+        query = {'granted': False}
         return self.db.requests.find(query)
 
     def get_requests(self, email):
@@ -171,3 +175,15 @@ class DatabaseManager:
 
     def get_all_rewards(self):
         return self.db.rewards.find()
+
+    def grant_request(self, request_id, granted_by):
+        request = self.get_request(request_id)
+        prize = self.get_prize(request['prize_id'])
+        self.store_record(
+            {'change_by': granted_by, 'user': request['email'], 'request_id': request['_id'],
+             'points': -int(prize['price'])})
+        return self.db.requests.update({'_id': request['_id']}, {'$set': {'granted': True}})
+
+    def get_request(self, request_id):
+        query = {'_id': ObjectId(request_id)}
+        return self.db.requests.find_one(query)

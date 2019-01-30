@@ -20,7 +20,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 Bootstrap(app)
 
 database_manager = DatabaseManager(app.config['MONGO_DATABASE_URI'], app.config['SECRET_KEY'],
-                                   use_test_data=True)
+                                   use_test_data=False)
 
 with open('client_id.json') as file:
     client_id = json.load(file)
@@ -275,13 +275,36 @@ def requests():
         user_request['price'] = prize['price']
         user_request['date'] = user_request['_id'].generation_time
 
-    return render_template('pages/requests.html', requests=user_requests)
+    ungranted_requests = None
+    current_user = database_manager.get_user(email)
+    if 'role' in current_user and current_user['role'] == 'admin':
+        ungranted_requests = list(database_manager.get_ungranted_requests())
+        for ungranted_request in ungranted_requests:
+            prize = database_manager.get_prize(ungranted_request['prize_id'])
+            ungranted_request['description'] = prize['description']
+            ungranted_request['date'] = ungranted_request['_id'].generation_time
+
+    return render_template('pages/requests.html', requests=user_requests,
+                           ungranted_requests=ungranted_requests)
 
 
 @app.route('/requests/<request_id>/cancel/', methods=['POST'])
 @login_required
 def requests_cancel(request_id):
     database_manager.cancel_request(request_id)
+    return redirect("/requests")
+
+
+@app.route('/requests/<request_id>/grant/', methods=['POST'])
+@login_required
+def requests_grant(request_id):
+    resp_json = google.get('/oauth2/v2/userinfo').json()
+    if not resp_json['email']:
+        redirect('/logout')
+    current_user_email = resp_json['email']
+    current_user = database_manager.get_user(current_user_email)
+    if 'role' in current_user and current_user['role'] == 'admin':
+        database_manager.grant_request(request_id, current_user_email)
     return redirect("/requests")
 
 
