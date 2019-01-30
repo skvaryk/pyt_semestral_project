@@ -13,6 +13,8 @@ from oauthlib.oauth2 import InvalidClientIdError
 from DatabaseManager import DatabaseManager
 from TogglWrapper import TogglWrapper, ProjectNotFoundException
 
+SYNETECH_WORKSPACE_ID = 689492
+
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 Bootstrap(app)
@@ -133,9 +135,8 @@ def tasks():
 
     options = {'server': 'https://synetech.atlassian.net'}
     jira_client = JIRA(options, basic_auth=(email, jira_api_token))
-    # TODO: replace currentuser()
-    jql = 'assignee=currentuser() AND status not in (resolved, closed) AND createdDate >= -365d'
-
+    jira_current_user = jira_client.current_user()
+    jql = 'assignee={} AND status not in (resolved, closed) AND createdDate >= -365d'.format(jira_current_user)
     block_size = 100
     block_num = 0
     jira_tasks = []
@@ -156,7 +157,7 @@ def tasks():
     toggl_api_token = database_manager.get_toggl_api_token(email)
     current_task_key = ""
     if toggl_api_token:
-        toggl_wrapper = TogglWrapper(toggl_api_token, "SynePoints", 689492)
+        toggl_wrapper = TogglWrapper(toggl_api_token, "SynePoints", SYNETECH_WORKSPACE_ID)
         current_time_entry = toggl_wrapper.get_current_time_entry()
         if current_time_entry and current_time_entry['tid']:
             current_task = toggl_wrapper.get_task(current_time_entry['tid'], current_time_entry['pid'])
@@ -196,7 +197,7 @@ def tasks_stop_timer(task_key):
     toggl_api_token = database_manager.get_toggl_api_token(email)
     if not toggl_api_token:
         return redirect('/toggl/register')
-    toggl_wrapper = TogglWrapper(toggl_api_token, "SynePoints", 689492)
+    toggl_wrapper = TogglWrapper(toggl_api_token, "SynePoints", SYNETECH_WORKSPACE_ID)
     toggl_wrapper.stop_time_entry(task_key)
     return redirect("/tasks")
 
@@ -208,7 +209,7 @@ def tasks_start_timer(task_key):
     toggl_api_token = database_manager.get_toggl_api_token(email)
     if not toggl_api_token:
         return redirect('/toggl/register')
-    toggl_wrapper = TogglWrapper(toggl_api_token, "SynePoints", 689492)
+    toggl_wrapper = TogglWrapper(toggl_api_token, "SynePoints", SYNETECH_WORKSPACE_ID)
     try:
         toggl_wrapper.start_time_entry(task_key)
     except ProjectNotFoundException as e:
