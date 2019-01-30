@@ -93,15 +93,54 @@ class DatabaseManager:
             {'id': 10, 'requestable': True, 'description': 'Půjčení IPhone X či Android ekvivalent na rok',
              'price': '1000'})
 
+        reward_category_project = {'name': 'PROJEKT', 'rewards': [
+            {'description': 'Dohození projektu pro firmu - po podepsání smlouvy', 'points': '150'},
+            {'description': 'Dokončená aplikace - aplikace po akceptaci, uzavřená finální faktura', 'points': '100'},
+            {'description': 'Uzavřená měsíční faktura - SLA / milník - vyfakturováno klientovi - (více než 5MD)',
+             'points': '20'},
+            {'description': 'Úspěšná release / stage verze - předána klientovi a ten je spokojen', 'points': '15'},
+            {'description': 'Nalezený kritcký bug při testování stage / release verze', 'points': '10'},
+        ]}
+        reward_category_diligence = {'name': 'PRACOVITOST', 'rewards': [
+            {'description': 'Počet odpracovaných hodin za měsíc - více než 110 / 120 / 140', 'points': '5 / 10 /20'},
+            {'description': '100% týdenní účast na standupu projektu', 'points': 'su / týden'},
+            {'description': 'Odměna reviewerem za čistý PR (max 20 za měsíc)', 'points': '5'},
+            {'description': 'Docházka - příchod do 8:45', 'points': '1'},
+            {'description': 'Dohození projektu pro firmu - po podepsání smlouvy', 'points': 150},
+
+        ]}
+        reward_category_branding = {'name': 'BRANDING', 'rewards': [
+            {'description': 'Prezentace firmy na externí akci', 'points': '50'},
+            {'description': 'Příspěvek na blog', 'points': '30 - 50'},
+            {'description': 'Připravený vlastní content pro soc sítě / web', 'points': '10'},
+            {'description': 'Sdílení firemních postů na svém účtu', 'points': '1'},
+            {'description': 'Výroba / návrh materiálů pro propagaci firmy - reálně použito pro marketing',
+             'points': 'dle Evičky'},
+
+        ]}
+        reward_category_company = {'name': 'FIRMA', 'rewards': [
+            {'description': 'Zorganizování firemní akce', 'points': '20'},
+            {'description': 'Prezentující libovolného tématu pro zbytek firmy (mimo prezentace projektů)',
+             'points': '10'},
+            {'description': 'Věcný příspěvek pro dobro firmy', 'points': '5'},
+            {'description': 'Nejlepší prezentace projektu', 'points': '5'},
+        ]}
+        reward_category_misc = {'name': 'MISCELLANEOUS', 'rewards': [
+            {'description': 'navrhuje kdokoliv komukoliv - akceptuje vedení SYNEGAMES', 'points': 'neomezeně'},
+        ]}
+        self.db.rewards.insert_many(
+            [reward_category_project, reward_category_diligence, reward_category_branding,
+             reward_category_company, reward_category_misc])
+
     def _drop_db(self):
         self.db.users.remove()
         self.db.prizes.remove()
 
     def assign_points(self, assignee_email, points, reason, assigner_email):
-        self._store_record({'change_by': assigner_email, 'user': assignee_email, 'reason': reason, 'points': points})
+        self.store_record({'change_by': assigner_email, 'user': assignee_email, 'reason': reason, 'points': points})
         self.db.users.update({'email': assignee_email}, {'$inc': {'points': points}})
 
-    def _store_record(self, record):
+    def store_record(self, record):
         return self.db.records.insert_one(record)
 
     def get_prize(self, prize_id):
@@ -124,3 +163,6 @@ class DatabaseManager:
     def cancel_request(self, request_id):
         query = {'_id': ObjectId(request_id)}
         return self.db.requests.delete_one(query)
+
+    def store_rewards_category(self, category):
+        return self.db.rewards.insert_one(category)
