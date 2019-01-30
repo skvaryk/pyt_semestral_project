@@ -21,11 +21,11 @@
             </p>
 
             {% if task.key == current_task_key %}
-            <form action="/tasks/{{ task.key }}/stop" method="post" style="display: inline">
+            <form action="/tasks/{{ task.key }}/stop/" method="post" style="display: inline">
                 <input class="btn btn-danger card-button" name="toggl" type="submit" value="Stop"/>
             </form>
             {% else %}
-            <form action="/tasks/{{ task.key }}/start" method="post" style="display: inline">
+            <form action="/tasks/{{ task.key }}/start/" method="post" style="display: inline">
                 <input class="btn btn-primary card-button" name="toggl" type="submit" value="Start"/>
             </form>
             {% endif %}
@@ -36,7 +36,7 @@
 
             {% if task.transitions is defined %}
             {% for transition in task.transitions %}
-            <form action="/tasks/{{ task.key }}/transition/{{ transition['id'] }}" method="post"
+            <form action="/tasks/{{ task.key }}/transition/{{ transition['id'] }}/" method="post"
                   style="display: inline">
                 <input class="btn btn-primary card-button" name="transition" type="submit"
                        value="{{ transition['name'] }}"/>
@@ -55,7 +55,7 @@
          tabindex="-1">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form action="/tasks/{{ task.key }}/comment" method="post">
+                <form action="/tasks/{{ task.key }}/comment/" method="post">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addCommentLabel-{{ task.key }}">Add commentary</h5>
                         <button aria-label="Close" class="close" data-dismiss="modal" type="button">

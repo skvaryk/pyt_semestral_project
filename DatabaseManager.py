@@ -1,4 +1,5 @@
 import pymongo
+from bson import ObjectId
 from cryptography.fernet import Fernet
 from pymongo import MongoClient
 
@@ -65,10 +66,10 @@ class DatabaseManager:
     def _fill_db_with_test_data(self):
         self._drop_db()
 
-        self.store_user({'email': 'franta.pepa1@synetech.cz', 'points': 3})
-        self.store_user({'email': 'franta.pepa3@synetech.cz', 'points': 5})
-        self.store_user({'email': 'franta.pepa2@synetech.cz', 'points': 1})
-        self.store_user({'email': 'marek.alexa@synetech.cz', 'points': 100})
+        self.store_user({'email': 'franta.pepa1@synetech.cz', 'role': 'user', 'points': 3})
+        self.store_user({'email': 'franta.pepa3@synetech.cz', 'role': 'user', 'points': 5})
+        self.store_user({'email': 'franta.pepa2@synetech.cz', 'role': 'user', 'points': 1})
+        self.store_user({'email': 'marek.alexa@synetech.cz', 'role': 'admin', 'points': 100})
 
         self.store_prize({'id': 0, 'requestable': False, 'description': 'Školení', 'price': 'dle domluvy'})
         self.store_prize(
@@ -119,3 +120,7 @@ class DatabaseManager:
     def get_requests(self, email):
         query = {'email': email}
         return self.db.requests.find(query)
+
+    def cancel_request(self, request_id):
+        query = {'_id': ObjectId(request_id)}
+        return self.db.requests.delete_one(query)

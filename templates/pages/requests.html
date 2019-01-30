@@ -22,7 +22,7 @@
 
             <td>
                 {% if not request['granted'] %}
-                <form action="/requests/{{ request['_id'] }}/cancel" method="post">
+                <form action="/requests/{{ request['_id'] }}/cancel/" method="post">
                     <button class="btn btn-primary" type="submit">Cancel</button>
                 </form>
                 {% endif %}

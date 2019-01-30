@@ -278,6 +278,13 @@ def requests():
     return render_template('pages/requests.html', requests=user_requests)
 
 
+@app.route('/requests/<request_id>/cancel/', methods=['POST'])
+@login_required
+def requests_cancel(request_id):
+    database_manager.cancel_request(request_id)
+    return redirect("/requests")
+
+
 @app.errorhandler(InvalidClientIdError)
 def handle_error(e):
     print(e.message)
