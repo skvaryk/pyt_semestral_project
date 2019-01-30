@@ -15,8 +15,20 @@
 
         {% for user in users %}
         <tr>
-            <td>{{ user['email'] }}</td>
-            <td>{{ user['points'] }}</td>
+            <td>
+                {% if current_user['email'] == user['email'] %}
+                <strong>
+                    {% endif %}
+                    {{ user['email'] }}
+                </strong>
+            </td>
+            <td>
+                {% if current_user['email'] == user['email'] %}
+                <strong>
+                    {% endif %}
+                    {{ user['points'] }}
+                </strong>
+            </td>
             {% if current_user['role'] == 'admin' or current_user['role'] == 'pm' %}
             <td>
                 <button class="btn btn-primary card-button" data-target="#assignPoints-{{ user['email'] }}"

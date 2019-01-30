@@ -71,21 +71,19 @@ def logged_in(blueprint, token):
 @app.route("/")
 @login_required
 def index():
-    # if not session['email']:
-    #     return redirect('/logout')
     resp_json = google.get("/oauth2/v2/userinfo").json()
     if not resp_json['email']:
         return redirect('/logout')
-    return redirect('/users')
+    return redirect('/overview')
 
 
-@app.route('/users/', methods=['GET', 'POST'])
+@app.route('/overview/', methods=['GET', 'POST'])
 @login_required
-def users():
+def overview():
     email = session['email']
     current_user = database_manager.get_user(email)
     all_users = database_manager.get_all_users()
-    return render_template('pages/users.html', users=list(all_users), current_user=current_user)
+    return render_template('pages/overview.html', users=list(all_users), current_user=current_user)
 
 
 @app.route('/prizes/', methods=['GET'])
@@ -260,7 +258,7 @@ def users_assign_points(assignee_email):
         database_manager.assign_points(assignee_email, points, reason, current_user_email)
     else:
         return 'Not authorized'
-    return redirect("/users")
+    return redirect("/overview")
 
 
 @app.route('/requests/', methods=['GET'])
