@@ -123,6 +123,7 @@ def logout():
         params={"token": token},
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
+    del google_bp.token
     session.clear()
     return "Logged out"
 
