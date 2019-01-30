@@ -71,6 +71,27 @@
         </tr>
         {% endfor %}
     </table>
-    <br>
+    <br> <br>
+
+    <h5>How can I get points?</h5>
+
+    <table style="width:100%">
+
+        {% for reward_category in reward_categories %}
+        <tr>
+            <th>{{ reward_category['name'] }}</th>
+        </tr>
+
+        {% for reward in reward_category['rewards'] %}
+
+        <tr>
+            <td> {{ reward['description'] }}</td>
+            <td> {{ reward['points'] }}</td>
+        </tr>
+
+        {% endfor %}
+        {% endfor %}
+    </table>
+
 </div>
 {% endblock %}

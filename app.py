@@ -20,7 +20,7 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 Bootstrap(app)
 
 database_manager = DatabaseManager(app.config['MONGO_DATABASE_URI'], app.config['SECRET_KEY'],
-                                   use_test_data=False)
+                                   use_test_data=True)
 
 with open('client_id.json') as file:
     client_id = json.load(file)
@@ -85,7 +85,9 @@ def overview():
     email = session['email']
     current_user = database_manager.get_user(email)
     all_users = database_manager.get_all_users()
-    return render_template('pages/overview.html', users=list(all_users), current_user=current_user)
+    reward_categories = database_manager.get_all_rewards()
+    return render_template('pages/overview.html', users=list(all_users),
+                           current_user=current_user, reward_categories=list(reward_categories))
 
 
 @app.route('/prizes/', methods=['GET'])

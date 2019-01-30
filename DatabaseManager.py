@@ -135,6 +135,8 @@ class DatabaseManager:
     def _drop_db(self):
         self.db.users.remove()
         self.db.prizes.remove()
+        self.db.requests.remove()
+        self.db.rewards.remove()
 
     def assign_points(self, assignee_email, points, reason, assigner_email):
         self.store_record({'change_by': assigner_email, 'user': assignee_email, 'reason': reason, 'points': points})
@@ -166,3 +168,6 @@ class DatabaseManager:
 
     def store_rewards_category(self, category):
         return self.db.rewards.insert_one(category)
+
+    def get_all_rewards(self):
+        return self.db.rewards.find()
