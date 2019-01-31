@@ -42,11 +42,6 @@ tr:nth-child(even) {
     margin: 0 auto;
 }
 
-.navbar-nav > li > a:focus {
-    background-color: #5dc19b;
-    color: black
-}
-
 a.card-button {
     color: whitesmoke;
     background-color: #27ad7a;
@@ -69,6 +64,12 @@ input.btn-primary:hover {
 }
 
 button.btn-primary:hover {
+    background-color: #5dc19b;
+    border-color: #27ad7a;
+}
+
+/*TODO button changes to default color after click*/
+button.btn-primary:active {
     background-color: #5dc19b;
     border-color: #27ad7a;
 }
