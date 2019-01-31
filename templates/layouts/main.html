@@ -5,41 +5,113 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
     {% block styles %}
-    {{super()}}
-    <link href="{{url_for('.static', filename='styles/default_style.css')}}"
-          rel="stylesheet">
+        {{ super() }}
+
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <link href="{{ url_for('.static', filename='styles/default_style.css') }}"
+              rel="stylesheet">
+
     {% endblock %}
 </head>
 <body>
 
+{% set active_page = active_page|default('index') -%}
+
 {% block content %}
-<div class="container">
+    <div class="container">
 
-    <nav class="navbar navbar-expand navbar-dark" style="background-color: #27ad7a;">
+        <!--<nav class="navbar navbar-expand navbar-dark" style="background-color: #27ad7a;">-->
 
-        <div class="box nav-item active">
-            <a href="/overview" class="btn nav-link mr-auto navbutton">Overview</a>
-        </div>
+        <!--<div class="box nav-item active">-->
+        <!--<a href="/overview" class="btn nav-link mr-auto navbutton">Overview</a>-->
+        <!--</div>-->
 
-        <div class="box nav-item active">
-            <a href="/prizes" class="btn nav-item mr-auto navbutton">Prizes</a>
-        </div>
-        <div class="box nav-item active">
-            <a href="/tasks" class="btn nav-item mr-auto navbutton">Tasks</a>
-        </div>
-        <div class="box nav-item active">
-            <a href="/requests" class="btn nav-item mr-auto navbutton">Requests</a>
-        </div>
-        <div class="box nav-item active">
-            <a href="/logout" class="btn nav-item mr-auto navbutton">Logout</a>
-        </div>
-    </nav>
+        <!--<div class="box nav-item active">-->
+        <!--<a href="/prizes" class="btn nav-item mr-auto navbutton">Prizes</a>-->
+        <!--</div>-->
+        <!--<div class="box nav-item active">-->
+        <!--<a href="/tasks" class="btn nav-item mr-auto navbutton">Tasks</a>-->
+        <!--</div>-->
+        <!--<div class="box nav-item active">-->
+        <!--<a href="/requests" class="btn nav-item mr-auto navbutton">Requests</a>-->
+        <!--</div>-->
+        <!--<div class="box nav-item active">-->
+        <!--<a href="/logout" class="btn nav-item mr-auto navbutton">Logout</a>-->
+        <!--</div>-->
+        <!--</nav>-->
 
-    <br>
-    <div class="row">
-        {% block page_content %}{% endblock %}
+        <!--<nav class="navbar navbar-inverse">-->
+        <!--<div class="container-fluid">-->
+        <!--<div class="navbar-header">-->
+        <!--<a class="navbar-brand" href="#">SynePoints</a>-->
+        <!--</div>-->
+        <!--<ul class="nav navbar-nav mr-auto nav-pills">-->
+        <!--<li class="active"><a href="#">Home</a></li>-->
+        <!--<li><a href="#">Page 1</a></li>-->
+        <!--<li><a href="#">Page 2</a></li>-->
+        <!--</ul>-->
+        <!--<ul class="nav navbar-nav navbar-right">-->
+        <!--<li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>-->
+        <!--<li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>-->
+        <!--</ul>-->
+        <!--</div>-->
+        <!--</nav>-->
+
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #27ad7a;">
+            <a class="navbar-brand" href="/">Syne<strong>Points</strong></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+
+                    <li class="nav-item active"
+                            {% if active_page == "overview" %} style="background-color: #5dc19b;" {% endif %}>
+                        <a class="nav-link" href="/">Overview <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item active"
+                            {% if active_page == "tasks" %} style="background-color: #5dc19b;" {% endif %}><a
+                            class="nav-link" href="/tasks">Tasks <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item dropdown active"
+                            {% if active_page == "prizes" or active_page == "requests" or active_page == "TODO" %}
+                        style="background-color: #5dc19b;" {% endif %}>
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Prizes
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                            <a class="dropdown-item" href="/prizes">Get Prizes</a>
+                            <a class="dropdown-item" href="/requests">Requests</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="#">How can I get points?</a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+
+        <!--<nav>-->
+        <!--<div class="nav-wrapper">-->
+        <!--<a href="#" class="brand-logo">Logo</a>-->
+        <!--<ul id="nav-mobile" class="right hide-on-med-and-down">-->
+        <!--<li><a href="sass.html">Sass</a></li>-->
+        <!--<li><a href="badges.html">Components</a></li>-->
+        <!--<li><a href="collapsible.html">JavaScript</a></li>-->
+        <!--</ul>-->
+        <!--</div>-->
+        <!--</nav>-->
+
+
+        <br>
+        <div class="row">
+            {% block page_content %}{% endblock %}
+        </div>
     </div>
-</div>
 {% endblock %}
 </body>
 </html>

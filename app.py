@@ -73,9 +73,9 @@ def logged_in(blueprint, token):
 @app.route("/")
 @login_required
 def index():
-    resp_json = google.get("/oauth2/v2/userinfo").json()
-    if not resp_json['email']:
-        return redirect('/logout')
+    # resp_json = google.get("/oauth2/v2/userinfo").json()
+    # if not resp_json['email']:
+    #     return redirect('/logout')
     return redirect('/overview')
 
 

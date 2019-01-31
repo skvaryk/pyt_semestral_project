@@ -1,5 +1,5 @@
 .container {
-    max-width: 750px;
+    max-width: 1000px;
 }
 
 table {
@@ -23,22 +23,28 @@ tr:nth-child(even) {
     margin: 0 auto;
 }
 
-div.box {
-    box-sizing: border-box;
-    width: 20%;
-    float: none;
-    text-align: center;
+html {
+    font-size: 100%;
 }
 
-a.navbutton {
-    -webkit-appearance: button;
-    -moz-appearance: button;
-    color: whitesmoke;
-    font-size: 1.1vw;
-    text-decoration: none;
-    width: 100%;
-    height: 100%;
-}
+/*div.box {*/
+/*box-sizing: border-box;*/
+/*width: 20%;*/
+/*float: none;*/
+/*text-align: center;*/
+/*background-color: #27ad7a;*/
+/*border-color: #27ad7a;*/
+/*}*/
+
+/*a.navbutton {*/
+/*-webkit-appearance: button;*/
+/*-moz-appearance: button;*/
+/*color: whitesmoke;*/
+/*font-size: 1.1vw;*/
+/*text-decoration: none;*/
+/*width: 100%;*/
+/*height: 100%;*/
+/*}*/
 
 a.card-button {
     color: whitesmoke;
