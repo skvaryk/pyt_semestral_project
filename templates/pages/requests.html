@@ -1,66 +1,63 @@
 {% extends "layouts/main.html" %}
 {% set active_page = "requests" %}
 {% block page_content %}
-    <div class="col-lg-12 col-centered">
 
-        <h5> My requests </h5>
+    <h5> My requests </h5>
+    <table style="width:100%">
+        <tr>
+            <th>Prize</th>
+            <th>Price</th>
+            <th>Date</th>
+            <th>Granted</th>
+            <th>Action</th>
+        </tr>
+
+        {% for request in requests %}
+            <tr>
+                <td>{{ request['description'] }}</td>
+                <td>{{ request['price'] }}</td>
+                <td>{{ request['date'] }}</td>
+                <td>{{ request['granted'] }}</td>
+
+                <td>
+                    {% if not request['granted'] %}
+                        <form action="/requests/{{ request['_id'] }}/cancel/" method="post">
+                            <button class="btn btn-primary" type="submit">Cancel</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
+    <br>
+
+
+    {% if ungranted_requests|length %}
+
+        <h5>Waiting for approval</h5>
         <table style="width:100%">
             <tr>
+                <th>User</th>
                 <th>Prize</th>
-                <th>Price</th>
                 <th>Date</th>
-                <th>Granted</th>
                 <th>Action</th>
             </tr>
 
-            {% for request in requests %}
+            {% for request in ungranted_requests %}
                 <tr>
+                    <td>{{ request['email'] }}</td>
                     <td>{{ request['description'] }}</td>
-                    <td>{{ request['price'] }}</td>
                     <td>{{ request['date'] }}</td>
-                    <td>{{ request['granted'] }}</td>
 
                     <td>
-                        {% if not request['granted'] %}
-                            <form action="/requests/{{ request['_id'] }}/cancel/" method="post">
-                                <button class="btn btn-primary" type="submit">Cancel</button>
-                            </form>
-                        {% endif %}
+                        <form action="/requests/{{ request['_id'] }}/grant/" method="post">
+                            <button class="btn btn-primary" type="submit">Grant</button>
+                        </form>
                     </td>
                 </tr>
             {% endfor %}
         </table>
-        <br>
-        <br>
+    {% endif %}
 
-
-        {% if ungranted_requests|length %}
-
-            <h5>Waiting for approval</h5>
-            <table style="width:100%">
-                <tr>
-                    <th>User</th>
-                    <th>Prize</th>
-                    <th>Date</th>
-                    <th>Action</th>
-                </tr>
-
-                {% for request in ungranted_requests %}
-                    <tr>
-                        <td>{{ request['email'] }}</td>
-                        <td>{{ request['description'] }}</td>
-                        <td>{{ request['date'] }}</td>
-
-                        <td>
-                            <form action="/requests/{{ request['_id'] }}/grant/" method="post">
-                                <button class="btn btn-primary" type="submit">Grant</button>
-                            </form>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </table>
-
-        {% endif %}
-
-    </div>
 {% endblock %}

@@ -2,21 +2,18 @@
 {% set active_page = "tasks" %}
 {% block page_content %}
 
-    <div class="col-lg-12 col-centered">
+    <p>To use this feature, you will have to provide your Toggl api token.</p>
 
-        <p>To use this feature, you will have to provide your Toggl api token.</p>
+    <form action="/toggl/register/" method="post">
+        Toggl api token:<br>
+        <input name="api_token" type="password">
+        <br><br>
+        <input class="btn btn-primary" name="submit_button" type="submit" value="Login"/>
+    </form>
 
-        <form action="/toggl/register/" method="post">
-            Toggl api token:<br>
-            <input name="api_token" type="password">
-            <br><br>
-            <input class="btn btn-primary" name="submit_button" type="submit" value="Login"/>
-        </form>
+    <br>
+    <p>If you are unsure how to obtain an api token, please go to your
+        <a href="https://toggl.com/app/profile" rel="noopener noreferrer"
+           target="_blank">toggl profile</a> and find the 'API token' category.</p>
 
-        <br>
-        <p>If you are unsure how to obtain an api token, please go to your
-            <a href="https://toggl.com/app/profile" rel="noopener noreferrer"
-               target="_blank">toggl profile</a> and find the 'API token' category.</p>
-
-    </div>
 {% endblock %}

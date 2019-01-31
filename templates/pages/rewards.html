@@ -1,0 +1,25 @@
+{% extends "layouts/main.html" %}
+{% set active_page = "rewards" %}
+{% block page_content %}
+
+    <h3>How can I get points?</h3>
+
+    <table style="width:100%">
+
+        {% for reward_category in reward_categories %}
+            <tr>
+                <th>{{ reward_category['name'] }}</th>
+            </tr>
+
+            {% for reward in reward_category['rewards'] %}
+
+                <tr>
+                    <td> {{ reward['description'] }}</td>
+                    <td> {{ reward['points'] }}</td>
+                </tr>
+
+            {% endfor %}
+        {% endfor %}
+    </table>
+
+{% endblock %}

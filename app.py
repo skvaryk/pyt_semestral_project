@@ -90,6 +90,13 @@ def overview():
                            current_user=current_user, reward_categories=list(reward_categories))
 
 
+@app.route('/rewards/', methods=['GET', 'POST'])
+@login_required
+def rewards():
+    reward_categories = database_manager.get_all_rewards()
+    return render_template('pages/rewards.html', reward_categories=list(reward_categories))
+
+
 @app.route('/prizes/', methods=['GET'])
 @login_required
 def prizes():

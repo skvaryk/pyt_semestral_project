@@ -2,21 +2,18 @@
 {% set active_page = "tasks" %}
 {% block page_content %}
 
-    <div class="col-lg-12 col-centered">
+    <p>To use this feature, you will have to provide your Jira api token.</p>
 
-        <p>To use this feature, you will have to provide your Jira api token.</p>
+    <form action="/jira/register/" method="post">
+        Jira api token:<br>
+        <input name="api_token" type="password">
+        <br><br>
+        <input class="btn btn-primary" name="submit_button" type="submit" value="Login"/>
+    </form>
 
-        <form action="/jira/register/" method="post">
-            Jira api token:<br>
-            <input name="api_token" type="password">
-            <br><br>
-            <input class="btn btn-primary" name="submit_button" type="submit" value="Login"/>
-        </form>
+    <br>
+    <p>If you are unsure how to obtain an api token, please refer to the official <a
+            href="https://confluence.atlassian.com/cloud/api-tokens-938839638.html" rel="noopener noreferrer"
+            target="_blank">documentation</a>.</p>
 
-        <br>
-        <p>If you are unsure how to obtain an api token, please refer to the official <a
-                href="https://confluence.atlassian.com/cloud/api-tokens-938839638.html" rel="noopener noreferrer"
-                target="_blank">documentation</a>.</p>
-
-    </div>
 {% endblock %}
