@@ -6,7 +6,7 @@
         <tr>
             <th>Email</th>
             <th>Points</th>
-            {% if current_user['role'] == 'admin' or current_user['role'] == 'pm' %}
+            {% if session['current_user_role'] == 'admin' or session['current_user_role'] == 'pm' %}
                 <th>Action</th>
             {% endif %}
 
@@ -15,20 +15,20 @@
         {% for user in users %}
             <tr>
                 <td>
-                    {% if current_user['email'] == user['email'] %}
+                    {% if session['current_user_email'] == user['email'] %}
                         <strong>
                     {% endif %}
                     {{ user['email'] }}
                     </strong>
                 </td>
                 <td>
-                    {% if current_user['email'] == user['email'] %}
+                    {% if session['current_user_email'] == user['email'] %}
                         <strong>
                     {% endif %}
                     {{ user['points'] }}
                     </strong>
                 </td>
-                {% if current_user['role'] == 'admin' or current_user['role'] == 'pm' %}
+                {% if session['current_user_role'] == 'admin' or session['current_user_role'] == 'pm' %}
                     <td>
                         <button class="btn btn-primary card-button" data-target="#assignPoints-{{ user['email'] }}"
                                 data-toggle="modal"

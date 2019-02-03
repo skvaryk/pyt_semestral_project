@@ -59,6 +59,11 @@ def login_required(f):
 @oauth_authorized.connect_via(google_bp)
 def logged_in(blueprint, token):
     resp_json = google.get("/oauth2/v2/userinfo").json()
+    user = database_manager.get_user(resp_json['email'])
+    if not user:
+        return 'User entry not found. Please contact the administrator to get registered.'
+
+    # check if email is from hosted_domain
     if resp_json["hd"] != blueprint.authorization_url_params["hd"]:
         requests.post(
             "https://accounts.google.com/o/oauth2/revoke",
@@ -67,27 +72,24 @@ def logged_in(blueprint, token):
         session.clear()
         redirect('/')
     else:
-        session['email'] = resp_json['email']
+        session['current_user_email'] = user['email']
+        session['current_user_role'] = user['role']
+        session['current_user_points'] = user['points']
 
 
 @app.route("/")
 @login_required
 def index():
-    # resp_json = google.get("/oauth2/v2/userinfo").json()
-    # if not resp_json['email']:
-    #     return redirect('/logout')
     return redirect('/overview')
 
 
 @app.route('/overview/', methods=['GET', 'POST'])
 @login_required
 def overview():
-    email = session['email']
-    current_user = database_manager.get_user(email)
     all_users = database_manager.get_all_users()
     reward_categories = database_manager.get_all_rewards()
     return render_template('pages/overview.html', users=list(all_users),
-                           current_user=current_user, reward_categories=list(reward_categories))
+                           reward_categories=list(reward_categories))
 
 
 @app.route('/rewards/', methods=['GET', 'POST'])
@@ -100,19 +102,14 @@ def rewards():
 @app.route('/prizes/', methods=['GET'])
 @login_required
 def prizes():
-    email = session['email']
-    user_points = database_manager.get_user(email)['points']
     prizes_list = list(database_manager.get_all_prizes())
-    for prize in prizes_list:
-        if str.isdigit(prize['price']) and int(prize['price']) > user_points:
-            prize['requestable'] = False
-    return render_template('pages/prizes.html', prizes=prizes_list, user_points=user_points)
+    return render_template('pages/prizes.html', prizes=prizes_list)
 
 
 @app.route('/prizes/<prize_id>/request/', methods=['POST'])
 @login_required
 def prizes_request(prize_id):
-    email = session['email']
+    email = session['current_user_email']
     user_points = database_manager.get_user(email)['points']
     prize = database_manager.get_prize(int(prize_id))
     if int(prize['price']) > user_points:
@@ -138,7 +135,7 @@ def logout():
 @app.route('/tasks/', methods=['GET'])
 @login_required
 def tasks():
-    email = session['email']
+    email = session['current_user_email']
     jira_api_token = database_manager.get_jira_api_token(email)
     if not jira_api_token:
         return redirect('/jira/register')
@@ -163,7 +160,6 @@ def tasks():
         transitions = jira_client.transitions(jira_task.key)
         jira_task.transitions = transitions
 
-    email = session['email']
     toggl_api_token = database_manager.get_toggl_api_token(email)
     current_task_key = ""
     if toggl_api_token:
@@ -181,7 +177,7 @@ def tasks():
 def jira_register():
     if request.method == 'POST':
         if request.form['submit_button'] == 'Login':
-            email = session['email']
+            email = session['current_user_email']
             jira_api_token = request.form['api_token']
             database_manager.store_jira_api_token(email, jira_api_token)
             return redirect("/tasks")
@@ -193,7 +189,7 @@ def jira_register():
 def toggl_register():
     if request.method == 'POST':
         if request.form['submit_button'] == 'Login':
-            email = session['email']
+            email = session['current_user_email']
             jira_api_token = request.form['api_token']
             database_manager.store_toggl_api_token(email, jira_api_token)
             return redirect("/tasks")
@@ -203,7 +199,7 @@ def toggl_register():
 @app.route('/tasks/<task_key>/stop/', methods=['POST'])
 @login_required
 def tasks_stop_timer(task_key):
-    email = session['email']
+    email = session['current_user_email']
     toggl_api_token = database_manager.get_toggl_api_token(email)
     if not toggl_api_token:
         return redirect('/toggl/register')
@@ -215,7 +211,7 @@ def tasks_stop_timer(task_key):
 @app.route('/tasks/<task_key>/start/', methods=['POST'])
 @login_required
 def tasks_start_timer(task_key):
-    email = session['email']
+    email = session['current_user_email']
     toggl_api_token = database_manager.get_toggl_api_token(email)
     if not toggl_api_token:
         return redirect('/toggl/register')
@@ -231,7 +227,7 @@ def tasks_start_timer(task_key):
 @login_required
 def tasks_comment(task_key):
     text = request.form['text']
-    email = session['email']
+    email = session['current_user_email']
     jira_api_token = database_manager.get_jira_api_token(email)
     if not jira_api_token:
         return redirect('/jira/register')
@@ -244,7 +240,7 @@ def tasks_comment(task_key):
 @app.route('/tasks/<task_key>/transition/<transition_id>/', methods=['POST'])
 @login_required
 def tasks_transition(task_key, transition_id):
-    email = session['email']
+    email = session['current_user_email']
     jira_api_token = database_manager.get_jira_api_token(email)
     if not jira_api_token:
         return redirect('/jira/register')
@@ -275,7 +271,7 @@ def users_assign_points(assignee_email):
 @app.route('/requests/', methods=['GET'])
 @login_required
 def requests():
-    email = session['email']
+    email = session['current_user_email']
     user_requests = list(database_manager.get_requests(email))
     for user_request in user_requests:
         prize = database_manager.get_prize(user_request['prize_id'])

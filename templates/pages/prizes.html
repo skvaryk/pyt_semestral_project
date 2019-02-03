@@ -2,66 +2,69 @@
 {% set active_page = "prizes" %}
 {% block page_content %}
 
-{% with messages = get_flashed_messages() %}
-{% for message in messages %}
-<div class="alert alert-success">
-    <a class="close" data-dismiss="alert" href="#">&times;</a>
-    {{ message }}
-</div>
-{% endfor %}
-{% endwith %}
-
-<h4>You have {{ user_points }} points.</h4>
-
-<table style="width:100%">
-    <tr>
-        <th>Prize</th>
-        <th>Price</th>
-        <th>Action</th>
-    </tr>
-
-    {% for prize in prizes %}
-    <tr>
-        <td>{{ prize['description'] }}</td>
-        <td>{{ prize['price'] }}</td>
-
-        <td>
-            {% if prize['requestable'] == True %}
-            <button class="btn btn-primary card-button" data-target="#requestPrize-{{ prize['id'] }}"
-                    data-toggle="modal"
-                    name="points_button" type="submit">
-                Request prize
-            </button>
-
-            <!-- Modal -->
-            <div aria-hidden="true" aria-labelledby="requestPrizeLabel-{{ prize['id'] }}" class="modal fade"
-                 id="requestPrize-{{ prize['id'] }}"
-                 role="dialog"
-                 tabindex="-1">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <form action="/prizes/{{ prize['id'] }}/request/" method="post">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="requestPrizeLabel-{{ prize['id'] }}">Request prize</h5>
-                                <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <p class="modal-body">Are you sure you want to request '{{ prize['description'] }}' for
-                                the price of {{ prize['price'] }} points?</p>
-                            <div class="modal-footer">
-                                <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
-                                <button class="btn btn-primary" type="submit">Yes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <div class="alert alert-success">
+                <a class="close" data-dismiss="alert" href="#">&times;</a>
+                {{ message }}
             </div>
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-<br>
+        {% endfor %}
+    {% endwith %}
+
+    <h4>You have {{ session['current_user_points'] }} points.</h4>
+
+    <table style="width:100%">
+        <tr>
+            <th>Prize</th>
+            <th>Price</th>
+            <th>Action</th>
+        </tr>
+
+        {% for prize in prizes %}
+            <tr>
+                <td>{{ prize['description'] }}</td>
+                <td>{{ prize['price'] }}</td>
+
+                <td>
+                    {% if prize['price'] <= session['current_user_points'] %}
+                        <button class="btn btn-primary card-button" data-target="#requestPrize-{{ prize['id'] }}"
+                                data-toggle="modal"
+                                name="points_button" type="submit">
+                            Request prize
+                        </button>
+
+                        <!-- Modal -->
+                        <div aria-hidden="true" aria-labelledby="requestPrizeLabel-{{ prize['id'] }}" class="modal fade"
+                             id="requestPrize-{{ prize['id'] }}"
+                             role="dialog"
+                             tabindex="-1">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <form action="/prizes/{{ prize['id'] }}/request/" method="post">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="requestPrizeLabel-{{ prize['id'] }}">Request
+                                                prize</h5>
+                                            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <p class="modal-body">Are you sure you want to request
+                                            '{{ prize['description'] }}' for
+                                            the price of {{ prize['price'] }} points?</p>
+                                        <div class="modal-footer">
+                                            <button class="btn btn-secondary" data-dismiss="modal" type="button">Close
+                                            </button>
+                                            <button class="btn btn-primary" type="submit">Yes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+    <br>
 
 {% endblock %}

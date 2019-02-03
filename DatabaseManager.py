@@ -17,17 +17,15 @@ class DatabaseManager:
     def __del__(self):
         self.client.close()
 
-    def store_user(self, user):
+    def _store_user(self, user):
         return self.db.users.insert_one(user)
 
     def get_user(self, email):
         query = {'email': email}
-        result = self.db.users.find_one(query)
-        return result
+        return self.db.users.find_one(query)
 
     def get_all_users(self):
-        result = self.db.users.find().sort([('points', pymongo.DESCENDING)])
-        return result
+        return self.db.users.find().sort([('points', pymongo.DESCENDING)])
 
     def store_prize(self, prize):
         return self.db.prizes.insert_one(prize)
@@ -66,10 +64,10 @@ class DatabaseManager:
     def _fill_db_with_test_data(self):
         self._drop_db()
 
-        self.store_user({'email': 'franta.pepa1@synetech.cz', 'role': 'user', 'points': 3})
-        self.store_user({'email': 'franta.pepa3@synetech.cz', 'role': 'user', 'points': 5})
-        self.store_user({'email': 'franta.pepa2@synetech.cz', 'role': 'user', 'points': 1})
-        self.store_user({'email': 'marek.alexa@synetech.cz', 'role': 'admin', 'points': 100})
+        self._store_user({'email': 'franta.pepa1@synetech.cz', 'role': 'user', 'points': 3})
+        self._store_user({'email': 'franta.pepa3@synetech.cz', 'role': 'user', 'points': 5})
+        self._store_user({'email': 'franta.pepa2@synetech.cz', 'role': 'user', 'points': 1})
+        self._store_user({'email': 'marek.alexa@synetech.cz', 'role': 'admin', 'points': 100})
 
         self.store_prize({'id': 0, 'requestable': False, 'description': 'Školení', 'price': 'dle domluvy'})
         self.store_prize(

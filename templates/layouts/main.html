@@ -34,11 +34,11 @@
 
                     <li class="nav-item active"
                             {% if active_page == "overview" %} style="background-color: #5dc19b;" {% endif %}>
-                        <a class="nav-link" href="/">Overview <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="/">Overview</a>
                     </li>
                     <li class="nav-item active"
                             {% if active_page == "tasks" %} style="background-color: #5dc19b;" {% endif %}>
-                        <a class="nav-link" href="/tasks">Tasks <span class="sr-only">(current)</span></a>
+                        <a class="nav-link" href="/tasks">Tasks</a>
                     </li>
                     <li class="nav-item dropdown active"
                             {% if active_page == "prizes" or active_page == "requests" or active_page == "rewards" %}
@@ -54,6 +54,12 @@
                             <a class="dropdown-item" href="/rewards">How can I get points?</a>
                         </div>
                     </li>
+                    {% if session['current_user_role'] == 'admin' or session['current_user_role'] == 'pm' %}
+                        <li class="nav-item active"
+                                {% if active_page == "assign_points" %} style="background-color: #5dc19b;" {% endif %}>
+                            <a class="nav-link" href="/assign_points">Assign Points</a>
+                        </li>
+                    {% endif %}
                 </ul>
                 <ul class="navbar-nav navbar-right">
                     <li><a href="/logout" class="nav-link fa fa-sign-out" title="Logout"></a></li>
