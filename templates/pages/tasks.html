@@ -1,78 +1,80 @@
 {% extends "layouts/main.html" %}
 {% set active_page = "tasks" %}
 {% block page_content %}
-{{super()}}
+    {{ super() }}
 
-{% for task in tasks %}
-<div class="card w-100">
-    <h5 class="card-header">{{ task.key + ": " + task.fields.summary }}
-        <small class="float-sm-right">{{ task.fields.status }}</small>
-    </h5>
+    {% for task in tasks %}
+        <div class="card w-100">
+            <h5 class="card-header">{{ task.key + ": " + task.fields.summary }}
+                <small class="float-sm-right">{{ task.fields.status }}</small>
+            </h5>
 
-    <div class="card-body">
-        <p class="card-text" style="overflow: hidden;
+            <div class="card-body">
+                <p class="card-text" style="overflow: hidden;
                                    text-overflow: ellipsis;
                                    display: -webkit-box;
                                    line-height: 16px;     /* fallback */
                                    max-height: 32px;      /* fallback */
                                    -webkit-line-clamp: 3; /* number of lines to show */
                                    -webkit-box-orient: vertical; ">
-            {{ task.fields.description }}
-        </p>
+                    {{ task.fields.description }}
+                </p>
 
-        {% if task.key == current_task_key %}
-        <form action="/tasks/{{ task.key }}/stop/" method="post" style="display: inline">
-            <input class="btn btn-danger card-button" name="toggl" type="submit" value="Stop"/>
-        </form>
-        {% else %}
-        <form action="/tasks/{{ task.key }}/start/" method="post" style="display: inline">
-            <input class="btn btn-primary card-button" name="toggl" type="submit" value="Start"/>
-        </form>
-        {% endif %}
+                {% if task.key == current_task_key %}
+                    <form action="/tasks/{{ task.key }}/stop/" method="post" style="display: inline">
+                        <input class="btn btn-danger card-button" name="toggl" type="submit" value="Stop"/>
+                    </form>
+                {% else %}
+                    <form action="/tasks/{{ task.key }}/start/" method="post" style="display: inline">
+                        <input class="btn btn-primary card-button" name="toggl" type="submit" value="Start"/>
+                    </form>
+                {% endif %}
 
-        <button class="btn btn-primary card-button" data-target="#addComment-{{ task.key }}" data-toggle="modal"
-                name="toggl" type="submit">Add comment
-        </button>
+                <button class="btn btn-primary card-button" data-target="#addComment-{{ task.key }}" data-toggle="modal"
+                        name="toggl" type="submit">Add comment
+                </button>
 
-        {% if task.transitions is defined %}
-        {% for transition in task.transitions %}
-        <form action="/tasks/{{ task.key }}/transition/{{ transition['id'] }}/" method="post"
-              style="display: inline">
-            <input class="btn btn-primary card-button" name="transition" type="submit"
-                   value="{{ transition['name'] }}"/>
-        </form>
-        {% endfor %}
-        {% endif %}
+                <hr>
 
-    </div>
-</div>
-<br>
+                {% if task.transitions is defined %}
+                    {% for transition in task.transitions %}
+                        <form action="/tasks/{{ task.key }}/transition/{{ transition['id'] }}/" method="post"
+                              style="display: inline">
+                            <input class="btn btn-primary card-button" name="transition" type="submit"
+                                   value="{{ transition['name'] }}"/>
+                        </form>
+                    {% endfor %}
+                {% endif %}
 
-<!-- Modal -->
-<div aria-hidden="true" aria-labelledby="addCommentLabel-{{ task.key }}" class="modal fade"
-     id="addComment-{{ task.key }}"
-     role="dialog"
-     tabindex="-1">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <form action="/tasks/{{ task.key }}/comment/" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addCommentLabel-{{ task.key }}">Add commentary</h5>
-                    <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <textarea name="text"></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
-                    <button class="btn btn-primary" type="submit">Submit</button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
-</div>
-{% endfor %}
+        <br>
+
+        <!-- Modal -->
+        <div aria-hidden="true" aria-labelledby="addCommentLabel-{{ task.key }}" class="modal fade"
+             id="addComment-{{ task.key }}"
+             role="dialog"
+             tabindex="-1">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <form action="/tasks/{{ task.key }}/comment/" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addCommentLabel-{{ task.key }}">Add commentary</h5>
+                            <button aria-label="Close" class="close" data-dismiss="modal" type="button">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <textarea name="text"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                            <button class="btn btn-primary" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
 
 {% endblock %}

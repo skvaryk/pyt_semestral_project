@@ -6,9 +6,6 @@
         <tr>
             <th>Email</th>
             <th>Points</th>
-            {% if session['current_user_role'] == 'admin' or session['current_user_role'] == 'pm' %}
-                <th>Action</th>
-            {% endif %}
 
         </tr>
 
@@ -28,50 +25,6 @@
                     {{ user['points'] }}
                     </strong>
                 </td>
-                {% if session['current_user_role'] == 'admin' or session['current_user_role'] == 'pm' %}
-                    <td>
-                        <button class="btn btn-primary card-button" data-target="#assignPoints-{{ user['email'] }}"
-                                data-toggle="modal"
-                                name="points_button" type="submit">Assign points
-                        </button>
-
-                        <!-- Modal -->
-                        <div aria-hidden="true" aria-labelledby="assignPointsLabel-{{ user['email'] }}"
-                             class="modal fade"
-                             id="assignPoints-{{ user['email'] }}"
-                             role="dialog"
-                             tabindex="-1">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <form action="/users/{{ user['email'] }}/points/" method="post">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="assignPointsLabel-{{ user['email'] }}">
-                                                Assing
-                                                points</h5>
-                                            <button aria-label="Close" class="close" data-dismiss="modal"
-                                                    type="button">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <label for="reason">Reason:</label>
-                                            <input id="reason" name="reason" type="text"><br>
-                                            <label for="points">Points:</label>
-                                            <input id="points" name="points" type="number" value="0">
-
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button class="btn btn-secondary" data-dismiss="modal" type="button">
-                                                Close
-                                            </button>
-                                            <button class="btn btn-primary" type="submit">Submit</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                {% endif %}
             </tr>
         {% endfor %}
     </table>

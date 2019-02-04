@@ -26,7 +26,7 @@
                 <td>{{ prize['price'] }}</td>
 
                 <td>
-                    {% if prize['price'] <= session['current_user_points'] %}
+                    {% if prize['price']|int <= session['current_user_points'] and prize['price']|int != 0 %}
                         <button class="btn btn-primary card-button" data-target="#requestPrize-{{ prize['id'] }}"
                                 data-toggle="modal"
                                 name="points_button" type="submit">

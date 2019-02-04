@@ -64,10 +64,10 @@ class DatabaseManager:
     def _fill_db_with_test_data(self):
         self._drop_db()
 
-        self._store_user({'email': 'franta.pepa1@synetech.cz', 'role': 'user', 'points': 3})
-        self._store_user({'email': 'franta.pepa3@synetech.cz', 'role': 'user', 'points': 5})
-        self._store_user({'email': 'franta.pepa2@synetech.cz', 'role': 'user', 'points': 1})
-        self._store_user({'email': 'marek.alexa@synetech.cz', 'role': 'admin', 'points': 100})
+        self._store_user({'email': 'franta.pepa1@synetech.cz', 'role': 'user', 'points': 3, 'team': []})
+        self._store_user({'email': 'franta.pepa3@synetech.cz', 'role': 'user', 'points': 5, 'team': [1]})
+        self._store_user({'email': 'franta.pepa2@synetech.cz', 'role': 'user', 'points': 1, 'team': [2]})
+        self._store_user({'email': 'marek.alexa@synetech.cz', 'role': 'admin', 'points': 100, 'team': [1, 2]})
 
         self.store_prize({'id': 0, 'requestable': False, 'description': 'Školení', 'price': 'dle domluvy'})
         self.store_prize(
@@ -130,6 +130,10 @@ class DatabaseManager:
             [reward_category_project, reward_category_diligence, reward_category_branding,
              reward_category_company, reward_category_misc])
 
+        team_oriflame = {'id': 1, 'name': 'Oriflame'}
+        team_fiddo = {'id': 2, 'name': 'Fiddo'}
+        self.db.teams.insert_many([team_oriflame, team_fiddo])
+
     def _drop_db(self):
         self.db.users.remove()
         self.db.prizes.remove()
@@ -185,3 +189,22 @@ class DatabaseManager:
     def get_request(self, request_id):
         query = {'_id': ObjectId(request_id)}
         return self.db.requests.find_one(query)
+
+    def query_users(self, name, team_id=-1):
+        if not name:
+            name = ''
+
+        if team_id == -1:
+            query = {'email': {'$regex': name}}
+        else:
+            query = {'email': {'$regex': name}, 'team': team_id}
+        return self.db.users.find(query)
+
+    # def query_users(self, name):
+    #     if not name:
+    #         name = ''
+    #     query = {'email': {'$regex': name}}
+    #     return self.db.users.find(query)
+
+    def get_teams(self):
+        return self.db.teams.find()

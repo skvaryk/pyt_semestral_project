@@ -1,0 +1,91 @@
+{% extends "layouts/main.html" %}
+{% set active_page = "assign_points" %}
+{% block page_content %}
+
+
+    {% with messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <div class="alert alert-success">
+                <a class="close" data-dismiss="alert" href="#">&times;</a>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <form action="/assign_points/query/" method="post" id="query_form"></form>
+    <form action="/assign_points/" method="post" id="assign_points_form"></form>
+
+    <div class="input-group" id="adv-search">
+
+        <input type="text" class="form-control" placeholder="Filter users" form="query_form" name="top_text"/>
+        <div class="input-group-btn">
+            <div class="btn-group" role="group">
+                <div class="dropdown dropdown-lg">
+                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
+                            aria-expanded="false"><span class="caret"></span></button>
+                    <div class="dropdown-menu dropdown-menu-right" role="menu">
+                        <form class="form-horizontal" role="form" action="/assign_points/query/" method="post">
+                            <div class="form-group">
+                                <label for="filter">Team</label>
+                                <select class="form-control" name="select">
+                                    <option value="-1">None</option>
+                                    {% for team in teams %}
+                                        <option value="{{ team['id'] }}">{{ team['name'] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="contain">Name contains</label>
+                                <input class="form-control" type="text" name="menu_text"/>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <span class="fa fa-search" aria-hidden="true"></span></button>
+                        </form>
+                    </div>
+                </div>
+                <button form="query_form" type="submit" class="btn btn-primary">
+                    <span class="fa fa-search" aria-hidden="true"></span></button>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <table style="width:100%">
+        <tr>
+            <th>Email</th>
+            <th>Points</th>
+            <th>Include</th>
+
+        </tr>
+
+        {% for user in users %}
+            <tr>
+                <td>
+                    {{ user['email'] }}
+                </td>
+                <td>
+                    {{ user['points'] }}
+                </td>
+                <td style="text-align:center;">
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="include_checkbox" value="{{ user['email'] }}"
+                                      form="assign_points_form"></label>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+    <br>
+
+    <div class="form-group">
+        {#        <label for="reason">Reason:</label>#}
+        <input id="reason" name="reason" type="text" form="assign_points_form" placeholder="Reason">
+        {#        <label for="points">Points:</label>#}
+        <input id="points" name="points" type="text" form="assign_points_form" placeholder="Points">
+
+        <input class="btn btn-primary" type="submit" form="assign_points_form" value="Submit"/>
+    </div>
+
+{% endblock %}

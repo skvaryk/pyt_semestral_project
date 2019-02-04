@@ -83,13 +83,11 @@ def index():
     return redirect('/overview')
 
 
-@app.route('/overview/', methods=['GET', 'POST'])
+@app.route('/overview/', methods=['GET'])
 @login_required
 def overview():
     all_users = database_manager.get_all_users()
-    reward_categories = database_manager.get_all_rewards()
-    return render_template('pages/overview.html', users=list(all_users),
-                           reward_categories=list(reward_categories))
+    return render_template('pages/overview.html', users=list(all_users))
 
 
 @app.route('/rewards/', methods=['GET', 'POST'])
@@ -310,6 +308,51 @@ def requests_grant(request_id):
     if 'role' in current_user and current_user['role'] == 'admin':
         database_manager.grant_request(request_id, current_user_email)
     return redirect("/requests")
+
+
+@app.route('/assign_points/', methods=['GET', 'POST'])
+@login_required
+def assign_points():
+    include_users = request.form.getlist('include_checkbox')
+    points = request.form.get('points')
+    if include_users and str.isdigit(points):
+        reason = request.form.get('reason')
+        points_int = int(points)
+
+        resp_json = google.get('/oauth2/v2/userinfo').json()
+        if not resp_json['email']:
+            redirect('/logout')
+        current_user_email = resp_json['email']
+        current_user = database_manager.get_user(current_user_email)
+        if 'role' in current_user and (current_user['role'] == 'admin' or current_user['role'] == 'pm'):
+            for user_email in include_users:
+                database_manager.assign_points(user_email, points_int, reason, current_user_email)
+        else:
+            return 'Not authorized'
+        flash('Points assigned.')
+
+    teams = list(database_manager.get_teams())
+    users = database_manager.get_all_users()
+    return render_template('pages/assign_points.html', teams=list(teams),
+                           users=list(users))
+
+
+@app.route('/assign_points/query/', methods=['POST'])
+@login_required
+def assign_points_query():
+    team_id = request.form.get('select')
+    name_contains = request.form.get('menu_text')
+    if not name_contains:
+        name_contains = request.form.get('top_text')
+
+    if team_id is not None:
+        filtered_users = database_manager.query_users(name_contains, int(team_id))
+    else:  # No team selected
+        filtered_users = database_manager.query_users(name_contains)
+
+    teams = list(database_manager.get_teams())
+    return render_template('pages/assign_points.html', teams=list(teams),
+                           users=list(filtered_users))
 
 
 @app.errorhandler(InvalidClientIdError)
