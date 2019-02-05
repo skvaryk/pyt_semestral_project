@@ -55,7 +55,7 @@
         <tr>
             <th>Email</th>
             <th>Points</th>
-            <th>Include</th>
+            <th style="text-align:center;">Select all <input type="checkbox" onClick="toggle(this)"/></th>
 
         </tr>
 
@@ -87,5 +87,14 @@
 
         <input class="btn btn-primary" type="submit" form="assign_points_form" value="Submit"/>
     </div>
+
+    <script language="JavaScript">
+        function toggle(source) {
+            var checkboxes = document.getElementsByName('include_checkbox');
+            for (var i = 0, n = checkboxes.length; i < n; i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
+    </script>
 
 {% endblock %}

@@ -64,10 +64,14 @@ class DatabaseManager:
     def _fill_db_with_test_data(self):
         self._drop_db()
 
-        self._store_user({'email': 'franta.pepa1@synetech.cz', 'role': 'user', 'points': 3, 'team': []})
-        self._store_user({'email': 'franta.pepa3@synetech.cz', 'role': 'user', 'points': 5, 'team': [1]})
-        self._store_user({'email': 'franta.pepa2@synetech.cz', 'role': 'user', 'points': 1, 'team': [2]})
-        self._store_user({'email': 'marek.alexa@synetech.cz', 'role': 'admin', 'points': 100, 'team': [1, 2]})
+        self._store_user(
+            {'email': 'franta.pepa1@synetech.cz', 'fullname': 'Franta Pepa1', 'role': 'user', 'points': 3, 'team': []})
+        self._store_user(
+            {'email': 'franta.pepa3@synetech.cz', 'fullname': 'Franta Pepa3', 'role': 'user', 'points': 5, 'team': [1]})
+        self._store_user(
+            {'email': 'franta.pepa2@synetech.cz', 'fullname': 'Franta Pepa2', 'role': 'user', 'points': 1, 'team': [2]})
+        self._store_user({'email': 'marek.alexa@synetech.cz', 'fullname': 'Marek Alexa', 'role': 'admin', 'points': 100,
+                          'team': [1, 2]})
 
         self.store_prize({'id': 0, 'requestable': False, 'description': 'Školení', 'price': 'dle domluvy'})
         self.store_prize(
@@ -139,6 +143,7 @@ class DatabaseManager:
         self.db.prizes.remove()
         self.db.requests.remove()
         self.db.rewards.remove()
+        self.db.teams.remove()
 
     def assign_points(self, user_email, points, reason, changed_by):
         self.store_record({'change_by': changed_by, 'user': user_email, 'reason': reason, 'points': points})
@@ -199,12 +204,6 @@ class DatabaseManager:
         else:
             query = {'email': {'$regex': name}, 'team': team_id}
         return self.db.users.find(query)
-
-    # def query_users(self, name):
-    #     if not name:
-    #         name = ''
-    #     query = {'email': {'$regex': name}}
-    #     return self.db.users.find(query)
 
     def get_teams(self):
         return self.db.teams.find()

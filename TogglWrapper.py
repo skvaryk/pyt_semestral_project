@@ -27,11 +27,13 @@ class TogglWrapper(TogglClientApi):
 
     def start_time_entry(self, task_name):
         task = self.get_task_by_name(task_name)
-        data = {'time_entry': {'description': task['name'], 'billable': True, 'pid': task['pid'],
-                               'created_with': 'SynePoints', 'tid': task['id']}}
-        path = '/time_entries/start'
-        response = self._post_query(path, dict_data=data)
-        return response
+        if task and 'id' in task:
+            data = {'time_entry': {'description': task['name'], 'billable': True, 'pid': task['pid'],
+                                   'created_with': 'SynePoints', 'tid': task['id']}}
+            path = '/time_entries/start'
+            response = self._post_query(path, dict_data=data)
+            return response
+        return None
 
     def stop_time_entry(self, task_name):
         task = self.get_task_by_name(task_name)
@@ -91,6 +93,13 @@ class TogglWrapper(TogglClientApi):
         path = "/tasks/{}".format(task_id)
         response = self._get_query(path)
         return response['data']
+
+    def get_current_task_key(self):
+        current_time_entry = self.get_current_time_entry()
+        if current_time_entry and 'tid' in current_time_entry:
+            current_task = self.get_task(current_time_entry['tid'], current_time_entry['pid'])
+            return current_task['name'].split(' ')[0]
+        return ""
 
     def _post_query(self, path, dict_data):
         data = json.dumps(dict_data)

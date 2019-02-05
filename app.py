@@ -11,6 +11,7 @@ from jira import JIRA
 from oauthlib.oauth2 import InvalidClientIdError
 
 from DatabaseManager import DatabaseManager
+from JiraWrapper import JiraWrapper
 from TogglWrapper import TogglWrapper, ProjectNotFoundException
 
 SYNETECH_WORKSPACE_ID = 689492
@@ -110,11 +111,27 @@ def prizes_request(prize_id):
     email = session['current_user_email']
     user_points = database_manager.get_user(email)['points']
     prize = database_manager.get_prize(int(prize_id))
+    price = int(prize['price'])
     if int(prize['price']) > user_points:
         return 'Sorry, it appears you do not have enough points for this prize.'
+    notify_by_mail(email, prize)
     database_manager.store_request(email, prize_id)
+    session['current_user_points'] -= price
     flash('Prize requested.')
     return redirect(url_for('prizes'))
+
+
+def notify_by_mail(user_mail, prize):
+    if app.config['DEBUG']:
+        server_url = 'http://localhost:5000/awesome-email/us-central1/sendEmail'
+    else:
+        server_url = 'https://europe-west1-awesome-email.cloudfunctions.net/sendEmail/'
+    message = '{} has requested the \'{}\' prize.'.format(user_mail, prize['description'])
+    dict = {'name': user_mail, 'subject': 'SynePoints - Prize request', 'email': user_mail, 'message': message}
+    data = json.dumps(dict)
+    headers = {"Content-Type": "application/json"}
+    response = requests.post(server_url, data=data, headers=headers)
+    print(response.status_code)
 
 
 @app.route('/logout/')
@@ -138,34 +155,14 @@ def tasks():
     if not jira_api_token:
         return redirect('/jira/register')
 
-    options = {'server': 'https://synetech.atlassian.net'}
-    jira_client = JIRA(options, basic_auth=(email, jira_api_token))
-    jira_current_user = jira_client.current_user()
-    jql = 'assignee={} AND status not in (resolved, closed) AND createdDate >= -365d'.format(jira_current_user)
-    block_size = 100
-    block_num = 0
-    jira_tasks = []
-    while True:
-        start_idx = block_num * block_size
-        issues = jira_client.search_issues(jql, start_idx, block_size)
-        if len(issues) == 0:
-            # Retrieve issues until there are no more to come
-            break
-        block_num += 1
-        jira_tasks.extend(issues)
-
-    for jira_task in jira_tasks:
-        transitions = jira_client.transitions(jira_task.key)
-        jira_task.transitions = transitions
+    jira_client = JiraWrapper(server='https://synetech.atlassian.net', basic_auth=(email, jira_api_token))
+    jira_tasks = jira_client.get_tasks_with_transitions()
 
     toggl_api_token = database_manager.get_toggl_api_token(email)
     current_task_key = ""
     if toggl_api_token:
         toggl_wrapper = TogglWrapper(toggl_api_token, "SynePoints", SYNETECH_WORKSPACE_ID)
-        current_time_entry = toggl_wrapper.get_current_time_entry()
-        if current_time_entry and current_time_entry['tid']:
-            current_task = toggl_wrapper.get_task(current_time_entry['tid'], current_time_entry['pid'])
-            current_task_key = current_task['name'].split(' ')[0]
+        current_task_key = toggl_wrapper.get_current_task_key()
 
     return render_template('pages/tasks.html', tasks=jira_tasks, current_task_key=current_task_key)
 
@@ -174,9 +171,9 @@ def tasks():
 @login_required
 def jira_register():
     if request.method == 'POST':
-        if request.form['submit_button'] == 'Login':
+        if request.form.get('submit_button') == 'Login':
             email = session['current_user_email']
-            jira_api_token = request.form['api_token']
+            jira_api_token = request.form.get('api_token')
             database_manager.store_jira_api_token(email, jira_api_token)
             return redirect("/tasks")
     return render_template('pages/jira_register.html')
@@ -186,9 +183,9 @@ def jira_register():
 @login_required
 def toggl_register():
     if request.method == 'POST':
-        if request.form['submit_button'] == 'Login':
+        if request.form.get('submit_button') == 'Login':
             email = session['current_user_email']
-            jira_api_token = request.form['api_token']
+            jira_api_token = request.form.get('api_token')
             database_manager.store_toggl_api_token(email, jira_api_token)
             return redirect("/tasks")
     return render_template('pages/toggl_register.html')
@@ -268,7 +265,7 @@ def users_assign_points(assignee_email):
 
 @app.route('/requests/', methods=['GET'])
 @login_required
-def requests():
+def requests_list():
     email = session['current_user_email']
     user_requests = list(database_manager.get_requests(email))
     for user_request in user_requests:
@@ -327,6 +324,7 @@ def assign_points():
         if 'role' in current_user and (current_user['role'] == 'admin' or current_user['role'] == 'pm'):
             for user_email in include_users:
                 database_manager.assign_points(user_email, points_int, reason, current_user_email)
+                session['current_user_points'] += points_int
         else:
             return 'Not authorized'
         flash('Points assigned.')
