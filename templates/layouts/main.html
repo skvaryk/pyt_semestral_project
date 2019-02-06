@@ -20,53 +20,54 @@
 {% set active_page = active_page|default('overview') -%}
 
 {% block content %}
+
+    <nav class="navbar navbar-expand-lg navbar-dark"
+         style="background-color: #000; padding-left: 50px; padding-right: 50px;">
+        <a class="navbar-brand" href="/"> <img src="/static/images/logo.png" alt="Logo" style="width:150px;margin-right: 20px;"/></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent" style="margin-top: 10px; margin-bottom: 10px;">
+            <ul class="navbar-nav mr-auto ">
+
+                <li class="nav-item active"
+                        {% if active_page == "overview" %} style="background-color: #333333;" {% endif %}>
+                    <a class="nav-link" href="/">Overview</a>
+                </li>
+                <li class="nav-item active"
+                        {% if active_page == "tasks" %} style="background-color: #333333;" {% endif %}>
+                    <a class="nav-link" href="/tasks">Tasks</a>
+                </li>
+                <li class="nav-item dropdown active"
+                        {% if active_page == "prizes" or active_page == "requests" or active_page == "rewards" %}
+                    style="background-color: #333333;" {% endif %}>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Prizes
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/prizes">Get Prizes</a>
+                        <a class="dropdown-item" href="/requests">Requests</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="/rewards">How can I get points?</a>
+                    </div>
+                </li>
+                {% if session['current_user_role'] == 'admin' or session['current_user_role'] == 'pm' %}
+                    <li class="nav-item active"
+                            {% if active_page == "assign_points" %} style="background-color: #333333;" {% endif %}>
+                        <a class="nav-link" href="/assign_points">Assign Points</a>
+                    </li>
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav navbar-right">
+                <li><a href="/logout" class="nav-link fa fa-sign-out" title="Logout" style="width:50px"></a></li>
+            </ul>
+        </div>
+    </nav>
+    <br>
     <div class="container">
-
-        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #27ad7a;">
-            <a class="navbar-brand" href="/"> <img src="/static/images/logo.png" alt="Logo" style="width:86px;"/></a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav mr-auto ">
-
-                    <li class="nav-item active"
-                            {% if active_page == "overview" %} style="background-color: #5dc19b;" {% endif %}>
-                        <a class="nav-link" href="/">Overview</a>
-                    </li>
-                    <li class="nav-item active"
-                            {% if active_page == "tasks" %} style="background-color: #5dc19b;" {% endif %}>
-                        <a class="nav-link" href="/tasks">Tasks</a>
-                    </li>
-                    <li class="nav-item dropdown active"
-                            {% if active_page == "prizes" or active_page == "requests" or active_page == "rewards" %}
-                        style="background-color: #5dc19b;" {% endif %}>
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Prizes
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <a class="dropdown-item" href="/prizes">Get Prizes</a>
-                            <a class="dropdown-item" href="/requests">Requests</a>
-                            <div class="dropdown-divider"></div>
-                            <a class="dropdown-item" href="/rewards">How can I get points?</a>
-                        </div>
-                    </li>
-                    {% if session['current_user_role'] == 'admin' or session['current_user_role'] == 'pm' %}
-                        <li class="nav-item active"
-                                {% if active_page == "assign_points" %} style="background-color: #5dc19b;" {% endif %}>
-                            <a class="nav-link" href="/assign_points">Assign Points</a>
-                        </li>
-                    {% endif %}
-                </ul>
-                <ul class="navbar-nav navbar-right">
-                    <li><a href="/logout" class="nav-link fa fa-sign-out" title="Logout"></a></li>
-                </ul>
-            </div>
-        </nav>
-        <br>
         <div class="row">
             <div class="col-lg-12 col-centered">
                 {% block page_content %}

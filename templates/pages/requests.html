@@ -2,35 +2,44 @@
 {% set active_page = "requests" %}
 {% block page_content %}
 
-    <h5> My requests </h5>
-    <table style="width:100%">
-        <tr>
-            <th>Prize</th>
-            <th>Price</th>
-            <th>Date</th>
-            <th>Granted</th>
-            <th>Action</th>
-        </tr>
+    {% if requests|length %}
 
-        {% for request in requests %}
+        <h5> My requests </h5>
+        <table style="width:100%">
             <tr>
-                <td>{{ request['description'] }}</td>
-                <td>{{ request['price'] }}</td>
-                <td>{{ request['date'] }}</td>
-                <td>{{ request['granted'] }}</td>
-
-                <td>
-                    {% if not request['granted'] %}
-                        <form action="/requests/{{ request['_id'] }}/cancel/" method="post">
-                            <button class="btn btn-primary" type="submit">Cancel</button>
-                        </form>
-                    {% endif %}
-                </td>
+                <th>Prize</th>
+                <th>Price</th>
+                <th>Date</th>
+                <th>Granted</th>
+                <th>Action</th>
             </tr>
-        {% endfor %}
-    </table>
-    <br>
-    <br>
+
+            {% for request in requests %}
+                <tr>
+                    <td>{{ request['description'] }}</td>
+                    <td>{{ request['price'] }}</td>
+                    <td>{{ request['date'] }}</td>
+                    <td>{{ request['granted'] }}</td>
+
+                    <td>
+                        {% if not request['granted'] %}
+                            <form action="/requests/{{ request['_id'] }}/cancel/" method="post">
+                                <button class="btn btn-primary" type="submit">Cancel</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+        <br>
+        <br>
+
+        {% else %}
+
+        <h4>No requests :(</h4>
+
+
+    {% endif %}
 
 
     {% if ungranted_requests|length %}

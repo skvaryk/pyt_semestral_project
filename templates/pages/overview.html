@@ -4,7 +4,7 @@
 
     <table style="width:100%">
         <tr>
-            <th>Email</th>
+            <th>Name</th>
             <th>Points</th>
 
         </tr>
@@ -15,7 +15,7 @@
                     {% if session['current_user_email'] == user['email'] %}
                         <strong>
                     {% endif %}
-                    {{ user['email'] }}
+                    {{ user['fullname'] }}
                     </strong>
                 </td>
                 <td>
@@ -28,4 +28,8 @@
             </tr>
         {% endfor %}
     </table>
+
+    <br>
+
+    <image href="https://drive.google.com/file/d/13Y6e1HKI67AEth-X4hMQguV4VxSa7vn9/uc?usp=sharing"></image>
 {% endblock %}

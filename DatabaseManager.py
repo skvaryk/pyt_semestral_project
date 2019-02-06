@@ -65,11 +65,13 @@ class DatabaseManager:
         self._drop_db()
 
         self._store_user(
-            {'email': 'franta.pepa1@synetech.cz', 'fullname': 'Franta Pepa1', 'role': 'user', 'points': 3, 'team': []})
+            {'email': 'franta.pepa1@synetech.cz', 'fullname': 'Franta Pepa 1', 'role': 'user', 'points': 3, 'team': []})
         self._store_user(
-            {'email': 'franta.pepa3@synetech.cz', 'fullname': 'Franta Pepa3', 'role': 'user', 'points': 5, 'team': [1]})
+            {'email': 'franta.pepa3@synetech.cz', 'fullname': 'Franta Pepa 3', 'role': 'user', 'points': 5,
+             'team': [1]})
         self._store_user(
-            {'email': 'franta.pepa2@synetech.cz', 'fullname': 'Franta Pepa2', 'role': 'user', 'points': 1, 'team': [2]})
+            {'email': 'franta.pepa2@synetech.cz', 'fullname': 'Franta Pepa 2', 'role': 'user', 'points': 1,
+             'team': [2]})
         self._store_user({'email': 'marek.alexa@synetech.cz', 'fullname': 'Marek Alexa', 'role': 'admin', 'points': 100,
                           'team': [1, 2]})
 

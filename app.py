@@ -8,7 +8,7 @@ from flask_bootstrap import Bootstrap
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import make_google_blueprint, google
 from jira import JIRA
-from oauthlib.oauth2 import InvalidClientIdError
+from oauthlib.oauth2 import InvalidClientIdError, InvalidGrantError
 
 from DatabaseManager import DatabaseManager
 from JiraWrapper import JiraWrapper
@@ -30,8 +30,7 @@ with open('client_id.json') as file:
     google_bp = make_google_blueprint(
         client_id=web['client_id'],
         client_secret=web['client_secret'],
-        scope=["https://www.googleapis.com/auth/plus.me",
-               "https://www.googleapis.com/auth/userinfo.email", ],
+        scope=['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'],
         hosted_domain="synetech.cz",
         offline=True,
     )
@@ -122,13 +121,13 @@ def prizes_request(prize_id):
 
 
 def notify_by_mail(user_mail, prize):
-    if app.config['DEBUG']:
+    if 'DEBUG' in app.config and app.config['DEBUG']:
         server_url = 'http://localhost:5000/awesome-email/us-central1/sendEmail'
     else:
         server_url = 'https://europe-west1-awesome-email.cloudfunctions.net/sendEmail/'
     message = '{} has requested the \'{}\' prize.'.format(user_mail, prize['description'])
-    dict = {'name': user_mail, 'subject': 'SynePoints - Prize request', 'email': user_mail, 'message': message}
-    data = json.dumps(dict)
+    data_dict = {'name': user_mail, 'subject': 'SynePoints - Prize request', 'email': user_mail, 'message': message}
+    data = json.dumps(data_dict)
     headers = {"Content-Type": "application/json"}
     response = requests.post(server_url, data=data, headers=headers)
     print(response.status_code)
@@ -356,7 +355,13 @@ def assign_points_query():
 @app.errorhandler(InvalidClientIdError)
 def handle_error(e):
     session.clear()
-    return redirect('/')
+    return redirect(url_for('google.login'))
+
+
+@app.errorhandler(InvalidGrantError)
+def handle_grant_error(e):
+    session.clear()
+    return redirect(url_for('google.login'))
 
 
 if __name__ == '__main__':

@@ -53,7 +53,7 @@
 
     <table style="width:100%">
         <tr>
-            <th>Email</th>
+            <th>Name</th>
             <th>Points</th>
             <th style="text-align:center;">Select all <input type="checkbox" onClick="toggle(this)"/></th>
 
@@ -62,7 +62,7 @@
         {% for user in users %}
             <tr>
                 <td>
-                    {{ user['email'] }}
+                    {{ user['fullname'] }}
                 </td>
                 <td>
                     {{ user['points'] }}
@@ -79,10 +79,8 @@
 
     <br>
 
-    <div class="form-group">
-        {#        <label for="reason">Reason:</label>#}
+    <div class="form-group center">
         <input id="reason" name="reason" type="text" form="assign_points_form" placeholder="Reason">
-        {#        <label for="points">Points:</label>#}
         <input id="points" name="points" type="text" form="assign_points_form" placeholder="Points">
 
         <input class="btn btn-primary" type="submit" form="assign_points_form" value="Submit"/>
