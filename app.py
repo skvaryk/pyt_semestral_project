@@ -290,6 +290,8 @@ def requests_list():
 @login_required
 def requests_cancel(request_id):
     database_manager.cancel_request(request_id)
+    user = database_manager.get_user(session.get('current_user_email'))
+    session['current_user_points'] = user['points']
     return redirect("/requests")
 
 

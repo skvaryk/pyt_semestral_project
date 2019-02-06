@@ -176,6 +176,9 @@ class DatabaseManager:
         return self.db.requests.find(query)
 
     def cancel_request(self, request_id):
+        request = self.get_request(request_id)
+        prize = self.get_prize(request['prize_id'])
+        self.update_points(request['email'], int(prize['price']))
         query = {'_id': ObjectId(request_id)}
         return self.db.requests.delete_one(query)
 
