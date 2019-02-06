@@ -121,16 +121,13 @@ def prizes_request(prize_id):
 
 
 def notify_by_mail(user_mail, prize):
-    if 'DEBUG' in app.config and app.config['DEBUG']:
-        server_url = 'http://localhost:5000/awesome-email/us-central1/sendEmail'
-    else:
+    if 'DEBUG' in app.config and not app.config['DEBUG']:
         server_url = 'https://europe-west1-awesome-email.cloudfunctions.net/sendEmail/'
-    message = '{} has requested the \'{}\' prize.'.format(user_mail, prize['description'])
-    data_dict = {'name': user_mail, 'subject': 'SynePoints - Prize request', 'email': user_mail, 'message': message}
-    data = json.dumps(data_dict)
-    headers = {"Content-Type": "application/json"}
-    response = requests.post(server_url, data=data, headers=headers)
-    print(response.status_code)
+        message = '{} has requested the \'{}\' prize.'.format(user_mail, prize['description'])
+        data_dict = {'name': user_mail, 'subject': 'SynePoints - Prize request', 'email': user_mail, 'message': message}
+        data = json.dumps(data_dict)
+        headers = {"Content-Type": "application/json"}
+        requests.post(server_url, data=data, headers=headers)
 
 
 @app.route('/logout/')
