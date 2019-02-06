@@ -17,10 +17,6 @@ body {
     font-family: 'Montserrat', Fallback, sans-serif;
 }
 
-.container {
-    /*max-width: 1250px;*/
-}
-
 table {
     font-family: 'Montserrat', Fallback, sans-serif;
     border-collapse: collapse;
@@ -132,20 +128,12 @@ button.btn-primary:active {
     text-align: center;
 }
 
-.checkbox input[type=checkbox],
-.checkbox-inline input[type=checkbox] {
+input[type=checkbox] {
+    -webkit-appearance: checkbox;
     margin: 0;
-}
-
-.checkbox {
     position: relative;
-    margin-top: 10px;
-    margin-bottom: 10px;
     display: table;
     width: 100%;
-}
-
-.checkbox input {
     vertical-align: middle;
     height: 100%;
 }
