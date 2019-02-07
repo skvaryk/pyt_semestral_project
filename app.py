@@ -3,8 +3,7 @@ import os
 from functools import wraps
 
 import requests
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_bootstrap import Bootstrap
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, make_response
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import make_google_blueprint, google
 from jira import JIRA
@@ -18,10 +17,10 @@ SYNETECH_WORKSPACE_ID = 689492
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
-Bootstrap(app)
+# Bootstrap(app)
 
 database_manager = DatabaseManager(app.config['MONGO_DATABASE_URI'], app.config['SECRET_KEY'],
-                                   use_test_data=False)
+                                   use_test_data=True)
 
 with open('client_id.json') as file:
     client_id = json.load(file)
@@ -75,6 +74,18 @@ def logged_in(blueprint, token):
         session['current_user_email'] = user['email']
         session['current_user_role'] = user['role']
         session['current_user_points'] = user['points']
+
+
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory('static', 'manifest.json')
+
+
+@app.route('/sw.js')
+def service_worker():
+    response = make_response(send_from_directory('static', 'sw.js'))
+    response.headers['Cache-Control'] = 'no-cache'
+    return response
 
 
 @app.route("/")

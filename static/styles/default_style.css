@@ -129,11 +129,5 @@ button.btn-primary:active {
 }
 
 input[type=checkbox] {
-    -webkit-appearance: checkbox;
-    margin: 0;
-    position: relative;
-    display: table;
     width: 100%;
-    vertical-align: middle;
-    height: 100%;
 }

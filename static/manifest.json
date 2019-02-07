@@ -1,0 +1,15 @@
+{
+  "short_name": "Points",
+  "name": "SynePoints",
+  "icons": [
+    {
+      "src": "/static/images/logo2.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#3367D6",
+  "display": "standalone",
+  "theme_color": "#3367D6"
+}

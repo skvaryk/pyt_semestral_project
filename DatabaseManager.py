@@ -1,3 +1,5 @@
+from sqlite3.dbapi2 import Date
+
 import pymongo
 from bson import ObjectId
 from cryptography.fernet import Fernet
@@ -65,15 +67,65 @@ class DatabaseManager:
         self._drop_db()
 
         self._store_user(
-            {'email': 'franta.pepa1@synetech.cz', 'fullname': 'Franta Pepa 1', 'role': 'user', 'points': 3, 'team': []})
+            {'email': 'daniel.rutkovsky@synetech.cz', 'fullname': 'Daniel Rutkovský', 'role': 'user', 'points': 3,
+             'team': []})
         self._store_user(
-            {'email': 'franta.pepa3@synetech.cz', 'fullname': 'Franta Pepa 3', 'role': 'user', 'points': 5,
+            {'email': 'miroslav.voda@synetech.cz', 'fullname': 'Miroslav Voda', 'role': 'user', 'points': 5,
              'team': [1]})
         self._store_user(
-            {'email': 'franta.pepa2@synetech.cz', 'fullname': 'Franta Pepa 2', 'role': 'user', 'points': 1,
+            {'email': 'vratislav.zima@synetech.cz', 'fullname': 'Vratislav Zima', 'role': 'admin', 'points': 1,
              'team': [2]})
-        self._store_user({'email': 'marek.alexa@synetech.cz', 'fullname': 'Marek Alexa', 'role': 'admin', 'points': 100,
-                          'team': [1, 2]})
+        self._store_user(
+            {'email': 'eduard.fuzessery@synetech.cz', 'fullname': 'Eduard Fuzessery', 'role': 'user', 'points': 1,
+             'team': [2]})
+        self._store_user(
+            {'email': 'jana.ernekerova@synetech.cz', 'fullname': 'Jana Ernekerová', 'role': 'user', 'points': 1,
+             'team': [2]})
+        self._store_user(
+            {'email': 'samuel.bily@synetech.cz', 'fullname': 'Samuel Bilý', 'role': 'user', 'points': 1,
+             'team': [2]})
+        self._store_user(
+            {'email': 'lubomir.baloun@synetech.cz', 'fullname': 'Lubomír Baloun', 'role': 'user', 'points': 1,
+             'team': [2]})
+        self._store_user(
+            {'email': 'lukas.vsetecka@synetech.cz', 'fullname': 'Lukáš Všetečka', 'role': 'user', 'points': 1,
+             'team': [2]})
+        self._store_user(
+            {'email': 'jiri.novacek@synetech.cz', 'fullname': 'Jiří Nováček', 'role': 'user', 'points': 1,
+             'team': [2]})
+        self._store_user(
+            {'email': 'marek.alexa@synetech.cz', 'fullname': 'Marek Alexa', 'role': 'admin', 'points': 100,
+             'team': [1, 2]})
+        self._store_user(
+            {'email': 'stepan.kloucek@synetech.cz', 'fullname': 'Štěpán Klouček', 'role': 'user', 'points': 1,
+             'team': [2]})
+        self._store_user(
+            {'email': 'jiri.rychlovsky@synetech.cz', 'fullname': 'Jiří Rychlovský', 'role': 'user', 'points': 1,
+             'team': [2]})
+
+        self._store_user(
+            {'email': 'vojtech.drbohlav@synetech.cz', 'fullname': 'Vojtěch Drbohlav', 'role': 'user', 'points': 1,
+             'team': [2]})
+
+        self._store_user(
+            {'email': 'eva.meclova@synetech.cz', 'fullname': 'Eva Mečlová', 'role': 'admin', 'points': 1,
+             'team': [2]})
+
+        self._store_user(
+            {'email': 'vojtech.pajer@synetech.cz', 'fullname': 'Vojtech Pajer', 'role': 'user', 'points': 1,
+             'team': [2]})
+
+        self._store_user(
+            {'email': 'lukas.ruzicka@synetech.cz', 'fullname': 'Lukáš Růžička', 'role': 'user', 'points': 1,
+             'team': [2]})
+
+        self._store_user(
+            {'email': 'tadeas.musil@synetech.cz', 'fullname': 'Tadeáš Musil', 'role': 'user', 'points': 1,
+             'team': [2]})
+
+        self._store_user(
+            {'email': 'tomas.novotny@synetech.cz', 'fullname': 'Tomáš Novotný', 'role': 'user', 'points': 1,
+             'team': [2]})
 
         self.store_prize({'id': 0, 'requestable': False, 'description': 'Školení', 'price': 'dle domluvy'})
         self.store_prize(
@@ -141,11 +193,18 @@ class DatabaseManager:
         self.db.teams.insert_many([team_oriflame, team_fiddo])
 
     def _drop_db(self):
-        self.db.users.remove()
-        self.db.prizes.remove()
-        self.db.requests.remove()
-        self.db.rewards.remove()
         self.db.teams.remove()
+        print(list(self.get_teams()))
+        self.db.users.remove()
+        print(list(self.get_all_users()))
+        self.db.prizes.remove()
+        print(list(self.get_all_prizes()))
+        self.db.requests.remove()
+        print(list(self.get_ungranted_requests()))
+        self.db.rewards.remove()
+        print(list(self.get_all_rewards()))
+        import time
+        time.sleep(5)
 
     def assign_points(self, user_email, points, reason, changed_by):
         self.store_record({'change_by': changed_by, 'user': user_email, 'reason': reason, 'points': points})

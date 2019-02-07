@@ -8,7 +8,7 @@
 
         {% for reward_category in reward_categories %}
             <tr>
-                <th>{{ reward_category['name'] }}</th>
+                <th colspan="2">{{ reward_category['name'] }}</th>
             </tr>
 
             {% for reward in reward_category['rewards'] %}
