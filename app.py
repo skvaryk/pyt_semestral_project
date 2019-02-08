@@ -4,6 +4,7 @@ from functools import wraps
 
 import requests
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, make_response
+from flask_bootstrap import Bootstrap
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import make_google_blueprint, google
 from jira import JIRA
@@ -17,10 +18,10 @@ SYNETECH_WORKSPACE_ID = 689492
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
-# Bootstrap(app)
+Bootstrap(app)
 
 database_manager = DatabaseManager(app.config['MONGO_DATABASE_URI'], app.config['SECRET_KEY'],
-                                   use_test_data=True)
+                                   use_test_data=False)
 
 with open('client_id.json') as file:
     client_id = json.load(file)
