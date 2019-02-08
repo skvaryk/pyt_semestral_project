@@ -127,7 +127,3 @@ button.btn-primary:active {
 .table-striped td {
     text-align: center;
 }
-
-input[type=checkbox] {
-    width: 100%;
-}
