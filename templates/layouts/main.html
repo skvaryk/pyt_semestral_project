@@ -1,11 +1,24 @@
-{% extends "bootstrap/base.html" %}
+{#{% extends "bootstrap/base.html" %}#}
 
 <head>
     <title>SynePointsApp</title>
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
     <script>
+        var OneSignal = window.OneSignal || [];
+        OneSignal.push(function () {
+            OneSignal.init({
+                appId: "59eefdc1-9188-464a-a46a-a150043e788b",
+            });
+        });
+    </script>
+    <script>
+        let swReg;
+        let deferredPrompt;
+
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js')
                 .then(function (registration) {
+                    swReg = registration;
                     console.log('Registration successful, scope is:', registration.scope);
                 })
                 .catch(function (error) {
@@ -13,18 +26,56 @@
                 });
         }
 
+        function initUI() {
+            console.log("initUI");
+
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            deferredPrompt.userChoice
+                .then(function (choiceResult) {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the A2HS prompt');
+                    } else {
+                        console.log('User dismissed the A2HS prompt');
+                    }
+                    deferredPrompt = null;
+                })
+                .catch(err => {
+                    console.log('err', err);
+                });
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log("beforeinstallprompt");
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            deferredPrompt = e;
+            document.getElementById('a2hsButton').style.display = 'inline-block';
+        });
+
     </script>
     <link href="/manifest.json" rel="manifest">
 
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
     {% block styles %}
-        {{ super() }}
+        {#        {{ super() }}#}
 
-        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.0/css/bootstrap.min.css" rel="stylesheet">
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.0/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+              integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+              crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+                integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+                crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+                integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+                crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+                integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+                crossorigin="anonymous"></script>
         <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-        <link href="{{ url_for('.static', filename='styles/default_style.css') }}"
+        <link href="{{ url_for('.static', filename='default_style.css') }}"
               rel="stylesheet">
 
     {% endblock %}
@@ -52,10 +103,6 @@
                         {% if active_page == "overview" %} style="background-color: #333333;" {% endif %}>
                     <a class="nav-link" href="/">Overview</a>
                 </li>
-                <li class="nav-item active"
-                        {% if active_page == "tasks" %} style="background-color: #333333;" {% endif %}>
-                    <a class="nav-link" href="/tasks">Tasks</a>
-                </li>
                 <li class="nav-item dropdown active"
                         {% if active_page == "prizes" or active_page == "requests" or active_page == "rewards" %}
                     style="background-color: #333333;" {% endif %}>
@@ -76,6 +123,13 @@
                         <a class="nav-link" href="/assign_points">Assign Points</a>
                     </li>
                 {% endif %}
+            </ul>
+
+            <ul class="navbar-nav navbar-right">
+                <li>
+                    <button id="a2hsButton" onClick="initUI()" class="nav-link fa fa-home" title="A2HS"
+                            style="width:50px; display: none"></button>
+                </li>
             </ul>
             <ul class="navbar-nav navbar-right">
                 <li><a href="/logout" class="nav-link fa fa-sign-out" title="Logout" style="width:50px"></a></li>

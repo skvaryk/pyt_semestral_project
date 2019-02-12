@@ -20,6 +20,15 @@
         <input type="text" class="form-control" placeholder="Filter users" form="query_form" name="top_text"/>
         <div class="input-group-btn">
             <div class="btn-group" role="group">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">sdasd</button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" href="#">Action</a>
+                        <a class="dropdown-item" href="#">Another action</a>
+                        <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                </div>
                 <div class="dropdown dropdown-lg">
                     <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"
                             aria-expanded="false"><span class="caret"></span></button>
@@ -68,8 +77,8 @@
                     {{ user['points'] }}
                 </td>
                 <td style="text-align:center;">
-                        <label><input type="checkbox" name="include_checkbox" value="{{ user['email'] }}"
-                                      form="assign_points_form"></label>
+                    <label><input type="checkbox" name="include_checkbox" value="{{ user['email'] }}"
+                                  form="assign_points_form"></label>
                 </td>
             </tr>
         {% endfor %}

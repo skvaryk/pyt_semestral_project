@@ -7,6 +7,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 from flask_bootstrap import Bootstrap
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import make_google_blueprint, google
+from flask_scss import Scss
 from jira import JIRA
 from oauthlib.oauth2 import InvalidClientIdError, InvalidGrantError
 
@@ -18,7 +19,9 @@ SYNETECH_WORKSPACE_ID = 689492
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
-Bootstrap(app)
+# Bootstrap(app)
+
+# Scss(app)
 
 database_manager = DatabaseManager(app.config['MONGO_DATABASE_URI'], app.config['SECRET_KEY'],
                                    use_test_data=False)
@@ -36,6 +39,12 @@ with open('client_id.json') as file:
     )
 
     app.register_blueprint(google_bp, url_prefix="/login")
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.errorhandler(ValueError)
@@ -73,8 +82,13 @@ def logged_in(blueprint, token):
         redirect('/')
     else:
         session['current_user_email'] = user['email']
-        session['current_user_role'] = user['role']
-        session['current_user_points'] = user['points']
+        update_session()
+
+
+def update_session():
+    user = database_manager.get_user(session['current_user_email'])
+    session['current_user_role'] = user['role']
+    session['current_user_points'] = user['points']
 
 
 @app.route('/manifest.json')
@@ -86,6 +100,16 @@ def manifest():
 def service_worker():
     response = make_response(send_from_directory('static', 'sw.js'))
     response.headers['Cache-Control'] = 'no-cache'
+    return response
+
+@app.route('/OneSignalSDKUpdaterWorker.js')
+def onesignalUpdater():
+    return send_from_directory('static', 'OneSignalSDKUpdaterWorker.js')
+
+
+@app.route('/OneSignalSDKWorker.js')
+def onesignal():
+    response = make_response(send_from_directory('static', 'OneSignalSDKWorker.js'))
     return response
 
 
@@ -122,12 +146,11 @@ def prizes_request(prize_id):
     email = session['current_user_email']
     user_points = database_manager.get_user(email)['points']
     prize = database_manager.get_prize(int(prize_id))
-    price = int(prize['price'])
     if int(prize['price']) > user_points:
         return 'Sorry, it appears you do not have enough points for this prize.'
     notify_by_mail(email, prize)
     database_manager.store_request(email, prize_id)
-    session['current_user_points'] -= price
+    update_session()
     flash('Prize requested.')
     return redirect(url_for('prizes'))
 
@@ -282,7 +305,7 @@ def requests_list():
         user_request['price'] = prize['price']
         user_request['date'] = user_request['_id'].generation_time
 
-    ungranted_requests = None
+    ungranted_requests = []
     current_user = database_manager.get_user(email)
     if 'role' in current_user and current_user['role'] == 'admin':
         ungranted_requests = list(database_manager.get_ungranted_requests())
@@ -299,8 +322,7 @@ def requests_list():
 @login_required
 def requests_cancel(request_id):
     database_manager.cancel_request(request_id)
-    user = database_manager.get_user(session.get('current_user_email'))
-    session['current_user_points'] = user['points']
+    update_session()
     return redirect("/requests")
 
 
@@ -334,7 +356,7 @@ def assign_points():
         if 'role' in current_user and (current_user['role'] == 'admin' or current_user['role'] == 'pm'):
             for user_email in include_users:
                 database_manager.assign_points(user_email, points_int, reason, current_user_email)
-                session['current_user_points'] += points_int
+                update_session()
         else:
             return 'Not authorized'
         flash('Points assigned.')

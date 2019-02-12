@@ -18,7 +18,7 @@
                 <tr>
                     <td>{{ request['description'] }}</td>
                     <td>{{ request['price'] }}</td>
-                    <td>{{ request['date'] }}</td>
+                    <td>{{ request['date'].strftime('%d.%m.%Y') }}</td>
                     <td>{{ request['granted'] }}</td>
 
                     <td>
@@ -34,7 +34,7 @@
         <br>
         <br>
 
-        {% else %}
+    {% else %}
 
         <h4>No requests :(</h4>
 
@@ -57,7 +57,7 @@
                 <tr>
                     <td>{{ request['email'] }}</td>
                     <td>{{ request['description'] }}</td>
-                    <td>{{ request['date'] }}</td>
+                    <td>{{ request['date'].strftime('%d.%m.%Y') }}</td>
 
                     <td>
                         <form action="/requests/{{ request['_id'] }}/grant/" method="post">
