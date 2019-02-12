@@ -4,10 +4,10 @@ from functools import wraps
 
 import requests
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, make_response
-from flask_bootstrap import Bootstrap
+# from flask_bootstrap import Bootstrap
 from flask_dance.consumer import oauth_authorized
 from flask_dance.contrib.google import make_google_blueprint, google
-from flask_scss import Scss
+# from flask_scss import Scss
 from jira import JIRA
 from oauthlib.oauth2 import InvalidClientIdError, InvalidGrantError
 
@@ -101,6 +101,7 @@ def service_worker():
     response = make_response(send_from_directory('static', 'sw.js'))
     response.headers['Cache-Control'] = 'no-cache'
     return response
+
 
 @app.route('/OneSignalSDKUpdaterWorker.js')
 def onesignalUpdater():
